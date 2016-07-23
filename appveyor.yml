@@ -12,7 +12,7 @@
   before_build:
     - ps: dotnet --info
     - ps: dotnet restore
-    - ps: $env:VERSION_SUFFIX = 'build' + "$env:APPVEYOR_BUILD_NUMBER".PadLeft(5, "0")
+    - ps: $env:VERSION_SUFFIX = 'build' + "$env:APPVEYOR_BUILD_NUMBER".PadLeft(4, "0")
   build_script:
     - ps: dotnet pack src\Bivouac\project.json -c $env:CONFIGURATION -o artifacts --version-suffix $env:VERSION_SUFFIX
   test_script:
