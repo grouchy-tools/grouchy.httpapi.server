@@ -6,6 +6,7 @@ namespace Bivouac
    using Microsoft.AspNetCore.Http;
    using System.Reflection;
    using System.Linq;
+   using Bivouac.Abstractions;
    using Microsoft.Extensions.DependencyInjection;
 
    public static class HttpExtensions

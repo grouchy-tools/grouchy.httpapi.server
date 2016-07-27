@@ -1,4 +1,4 @@
-namespace Bivouac
+namespace Bivouac.Abstractions
 {
    using System.Threading.Tasks;
    using Microsoft.AspNetCore.Http;
