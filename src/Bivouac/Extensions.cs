@@ -42,7 +42,8 @@
 
          var regex = new Regex(match.ToRegex());
 
-         var result = regex.Match(WebUtility.UrlDecode(request.Path));
+         // Using .Path.Value matches against the unescaped string, .Path matches the escaped string
+         var result = regex.Match(request.Path.Value);
 
          if (!result.Success || result.Groups["0"].Value != request.Path)
          {

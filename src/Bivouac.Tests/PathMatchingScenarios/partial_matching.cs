@@ -1,6 +1,7 @@
 ﻿namespace Bivouac.Tests.PathMatchingScenarios
 {
    using System.Collections.Generic;
+   using System.Net;
    using Microsoft.AspNetCore.Http;
    using Bivouac;
    using Xunit;
@@ -16,12 +17,14 @@
       [InlineData("/api/get/2015-12-30", "GET", "/api/get/{date}", new[] { "date" }, new[] { "2015-12-30" }, "")]
       [InlineData("/api/get/2015-12-30/id", "GET", "/api/get/{date}", new[] { "date" }, new[] { "2015-12-30" }, "/id")]
       [InlineData("/api/get/2015-12-30/id", "GET", "/api/get/{date}/id", new[] { "date" }, new[] { "2015-12-30" }, "")]
-      [InlineData("/api/get/Two%2BWords/id", "GET", "/api/get/{name}/id", new[] { "name" }, new[] { "Two%2BWords" }, "")]
+      [InlineData("/api/get/Two+Words/id", "GET", "/api/get/{name}/id", new[] { "name" }, new[] { "Two Words" }, "")]
+      [InlineData("/api/get/Two%20Words/id", "GET", "/api/get/{name}/id", new[] { "name" }, new[] { "Two Words" }, "")]
       [InlineData("/api/get/2015-12-30/id", "GET", "/api/get/{date}/{field}", new[] { "date", "field" }, new[] { "2015-12-30", "id" }, "")]
       [InlineData("/api/get/more", "GET", "/api/get", new string[] { }, new string[] { }, "/more")]
-      public void should_match(string path, string method, string pattern, string[] expectedTokenKeys, string[] expectedTokenValues, string expectedRemainder)
+      public void should_match(string urlEncodedPath, string method, string pattern, string[] expectedTokenKeys, string[] expectedTokenValues, string expectedRemainder)
       {
-         var request = new StubHttpRequest { Method = method, Path = path };
+         // PathString seemingly automatically encodes the string even if it's already encoded
+         var request = new StubHttpRequest { Method = method, Path = WebUtility.UrlDecode(urlEncodedPath)};
 
          IDictionary<string, string> tokens;
          PathString remainder;
