@@ -4,6 +4,7 @@
    using System.Collections.Generic;
    using Microsoft.AspNetCore.Http;
    using System.Linq;
+   using System.Net;
    using System.Text.RegularExpressions;
 
    public static class Extensions
@@ -41,7 +42,7 @@
 
          var regex = new Regex(match.ToRegex());
 
-         var result = regex.Match(request.Path);
+         var result = regex.Match(WebUtility.UrlDecode(request.Path));
 
          if (!result.Success || result.Groups["0"].Value != request.Path)
          {

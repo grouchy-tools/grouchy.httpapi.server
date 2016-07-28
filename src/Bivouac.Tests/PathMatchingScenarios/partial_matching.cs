@@ -10,13 +10,13 @@
       //TODO
       //api/get/2016-12-30/idg/ds/fe
 
-
       [Theory]
       [InlineData("/api/get", "GET", "/api/get", new string[] { }, new string[] { }, "")]
       [InlineData("/api/get/id", "GET", "/api/get", new string[] { }, new string[] { }, "/id")]
       [InlineData("/api/get/2015-12-30", "GET", "/api/get/{date}", new[] { "date" }, new[] { "2015-12-30" }, "")]
       [InlineData("/api/get/2015-12-30/id", "GET", "/api/get/{date}", new[] { "date" }, new[] { "2015-12-30" }, "/id")]
       [InlineData("/api/get/2015-12-30/id", "GET", "/api/get/{date}/id", new[] { "date" }, new[] { "2015-12-30" }, "")]
+      [InlineData("/api/get/Two%2BWords/id", "GET", "/api/get/{name}/id", new[] { "name" }, new[] { "Two%2BWords" }, "")]
       [InlineData("/api/get/2015-12-30/id", "GET", "/api/get/{date}/{field}", new[] { "date", "field" }, new[] { "2015-12-30", "id" }, "")]
       [InlineData("/api/get/more", "GET", "/api/get", new string[] { }, new string[] { }, "/more")]
       public void should_match(string path, string method, string pattern, string[] expectedTokenKeys, string[] expectedTokenValues, string expectedRemainder)
