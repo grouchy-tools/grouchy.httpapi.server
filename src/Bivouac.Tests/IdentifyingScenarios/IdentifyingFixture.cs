@@ -6,8 +6,8 @@
    using Microsoft.AspNetCore.Http;
    using Microsoft.Extensions.DependencyInjection;
    using Bivouac.Abstractions;
-   using Bivouac.Implementations;
    using Bivouac.Middleware;
+   using Bivouac.Services;
    using Newtonsoft.Json;
 
    public class IdentifyingFixture
@@ -22,10 +22,9 @@
          _stubEventLogger = new StubEventLogger();
          _testHost = new WebApiTestHost(services =>
          {
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddServerLoggingServices();
+
             services.AddSingleton<IGenerateGuids>(_stubGuidGenerator);
-            services.AddSingleton<IGetRequestId, RequestIdGetter>();
-            services.AddSingleton<IGetCorrelationId, CorrelationIdGetter>();
             services.AddSingleton<ILogEvents>(_stubEventLogger);
          }, builder =>
          {
@@ -42,7 +41,7 @@
 
       private void Configure(IApplicationBuilder app)
       {
-         app.UseMiddleware<ServerLoggingMiddleware>();
+         app.UseServerLoggingMiddleware();
 
          app.Map("/get-ids-from-context", "GET", async context =>
          {

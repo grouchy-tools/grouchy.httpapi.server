@@ -4,7 +4,7 @@
    using Newtonsoft.Json;
    using Xunit;
 
-   public class http_not_found_exception : IClassFixture<http_not_found_exception.fixture>
+   public class happy_path_post : IClassFixture<happy_path_post.fixture>
    {
       public class fixture : ServerLoggingFixture
       {
@@ -12,37 +12,29 @@
 
          public fixture()
          {
-            Response = TestHost.Get("/not-found-exception");
+            Response = TestHost.Post("/happy-path", "{}");
          }
       }
 
       private readonly fixture _fixture;
 
-      public http_not_found_exception(fixture fixture)
+      public happy_path_post(fixture fixture)
       {
          _fixture = fixture;
       }
 
       [Fact]
-      public void should_return_status_code_not_found()
+      public void should_return_status_code_from_next_middleware()
       {
-         Assert.Equal(404, (int)_fixture.Response.StatusCode);
+         Assert.Equal(200, (int)_fixture.Response.StatusCode);
       }
 
       [Fact]
-      public void should_return_content_not_found()
+      public void should_return_content_from_next_middleware()
       {
          var content = _fixture.Response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal(content, "Thing not found");
-      }
-
-      [Fact]
-      public void should_return_content_type_text_plain()
-      {
-         var contentType = _fixture.Response.Content.Headers.ContentType.MediaType;
-
-         Assert.Equal(contentType, "text/plain");
+         Assert.Equal(content, "Complete Post!");
       }
 
       [Fact]
@@ -54,7 +46,7 @@
       [Fact]
       public void should_log_server_request()
       {
-         var json = JsonConvert.SerializeObject(new { eventType = "serverRequest", requestId = _fixture.RequestId, correlationId = _fixture.CorrelationId, method = "GET", uri = "/not-found-exception" });
+         var json = JsonConvert.SerializeObject(new { eventType = "serverRequest", requestId = _fixture.RequestId, correlationId = _fixture.CorrelationId, method="POST", uri = "/happy-path" });
 
          Assert.Equal(json, _fixture.StubEventLogger.LoggedEvents[0]);
       }
@@ -67,10 +59,10 @@
          Assert.Equal("serverResponse", log.eventType);
          Assert.Equal(_fixture.RequestId.ToString(), log.requestId);
          Assert.Equal(_fixture.CorrelationId.ToString(), log.correlationId);
-         Assert.Equal("GET", log.method);
-         Assert.Equal("/not-found-exception", log.uri);
+         Assert.Equal("POST", log.method);
+         Assert.Equal("/happy-path", log.uri);
          Assert.InRange(log.duration, 0, int.MaxValue);
-         Assert.Equal(404, log.statusCode);
+         Assert.Equal(200, log.statusCode);
       }
    }
 }

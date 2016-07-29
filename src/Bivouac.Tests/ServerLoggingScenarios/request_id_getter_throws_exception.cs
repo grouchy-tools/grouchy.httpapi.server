@@ -49,7 +49,7 @@
       [Fact]
       public void should_log_server_request()
       {
-         var json = JsonConvert.SerializeObject(new { eventType = "serverRequest", requestId = Guid.Empty, correlationId = _fixture.CorrelationId, uri = "/happy-path" });
+         var json = JsonConvert.SerializeObject(new { eventType = "serverRequest", requestId = Guid.Empty, correlationId = _fixture.CorrelationId, method = "GET", uri = "/happy-path" });
 
          Assert.Equal(json, _fixture.StubEventLogger.LoggedEvents[0]);
       }
@@ -57,11 +57,12 @@
       [Fact]
       public void should_log_server_response()
       {
-         var log = JsonConvert.DeserializeAnonymousType(_fixture.StubEventLogger.LoggedEvents[1], new { eventType = "", requestId = "", correlationId = "", uri = "", duration = 0, statusCode = 0 });
+         var log = JsonConvert.DeserializeAnonymousType(_fixture.StubEventLogger.LoggedEvents[1], new { eventType = "", requestId = "", correlationId = "", method = "", uri = "", duration = 0, statusCode = 0 });
 
          Assert.Equal("serverResponse", log.eventType);
          Assert.Equal(Guid.Empty.ToString(), log.requestId);
          Assert.Equal(_fixture.CorrelationId.ToString(), log.correlationId);
+         Assert.Equal("GET", log.method);
          Assert.Equal("/happy-path", log.uri);
          Assert.InRange(log.duration, 0, int.MaxValue);
          Assert.Equal(200, log.statusCode);

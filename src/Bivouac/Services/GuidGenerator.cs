@@ -1,4 +1,4 @@
-namespace Bivouac.Implementations
+namespace Bivouac.Services
 {
    using System;
    using Bivouac.Abstractions;

@@ -60,7 +60,7 @@
       [Fact]
       public void should_log_server_request()
       {
-         var json = JsonConvert.SerializeObject(new { eventType = "serverRequest", requestId = fixture.RequestId, correlationId = fixture.CorrelationId, uri = "/get-ids-from-context" });
+         var json = JsonConvert.SerializeObject(new { eventType = "serverRequest", requestId = fixture.RequestId, correlationId = fixture.CorrelationId, method = "GET", uri = "/get-ids-from-context" });
 
          Assert.Equal(json, _fixture.StubEventLogger.LoggedEvents[0]);
       }

@@ -11,25 +11,17 @@
    public class ServerLoggingMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly ILogEvents _eventLogger;
-      private readonly IGetRequestId _requestIdGetter;
-      private readonly IGetCorrelationId _correlationIdGetter;
+      private readonly IServerLoggingService _serverLoggingService;
 
       public ServerLoggingMiddleware(
          RequestDelegate next,
-         ILogEvents eventLogger,
-         IGetRequestId requestIdGetter,
-         IGetCorrelationId correlationIdGetter)
+         IServerLoggingService serverLoggingService)
       {
          if (next == null) throw new ArgumentNullException(nameof(next));
-         if (eventLogger == null) throw new ArgumentNullException(nameof(eventLogger));
-         if (requestIdGetter == null) throw new ArgumentNullException(nameof(requestIdGetter));
-         if (correlationIdGetter == null) throw new ArgumentNullException(nameof(correlationIdGetter));
+         if (serverLoggingService == null) throw new ArgumentNullException(nameof(serverLoggingService));
 
          _next = next;
-         _eventLogger = eventLogger;
-         _requestIdGetter = requestIdGetter;
-         _correlationIdGetter = correlationIdGetter;
+         _serverLoggingService = serverLoggingService;
       }
 
       public async Task Invoke(HttpContext context)
@@ -37,15 +29,11 @@
          if (context == null) throw new ArgumentNullException(nameof(context));
 
          var stopwatch = Stopwatch.StartNew();
-
-         var requestId = SafeGetter(_requestIdGetter.Get);
-         var correlationId = SafeGetter(_correlationIdGetter.Get);
-
-         SafeLog($"{{\"eventType\":\"serverRequest\",\"requestId\":\"{requestId}\",\"correlationId\":\"{correlationId}\",\"uri\":\"{context.Request.Path}\"}}");
+         SafeInvoke(() => _serverLoggingService.LogRequest(context));
 
          try
          {
-            await _next.Invoke(context);
+            await _next(context);
          }
          catch (HttpException e)
          {
@@ -55,42 +43,30 @@
          {
             await WriteResponse(context, HttpStatusCode.InternalServerError, "FAIL!");
 
-            SafeLog($"{{\"eventType\":\"serverError\",\"requestId\":\"{requestId}\",\"correlationId\":\"{correlationId}\",\"uri\":\"{context.Request.Path}\",\"exceptionType\":\"{e.GetType().FullName}\",\"message\":\"{e.Message}\"}}");
+            SafeInvoke(() => _serverLoggingService.LogError(context, e));
             // TODO: Log stack trace out through debug/console
          }
 
          stopwatch.Stop();
-         SafeLog($"{{\"eventType\":\"serverResponse\",\"requestId\":\"{requestId}\",\"correlationId\":\"{correlationId}\",\"statusCode\":\"{context.Response.StatusCode}\",\"duration\":\"{stopwatch.ElapsedMilliseconds}\",\"uri\":\"{context.Request.Path}\"}}");
+         SafeInvoke(() => _serverLoggingService.LogResponse(context, stopwatch.ElapsedMilliseconds));
       }
 
-      private async Task WriteResponse(HttpContext context, HttpStatusCode statusCode, string plainText)
+      private static async Task WriteResponse(HttpContext context, HttpStatusCode statusCode, string plainText)
       {
          context.Response.StatusCode = (int)statusCode;
          context.Response.ContentType = "text/plain";
          await context.Response.WriteAsync(plainText);
       }
 
-      private Guid SafeGetter(Func<Guid> getter)
+      private static void SafeInvoke(Action action)
       {
          try
          {
-            return getter();
+            action();
          }
          catch
          {
-            return Guid.Empty;
-         }
-      }
-
-      private void SafeLog(string json)
-      {
-         try
-         {
-            _eventLogger.Log(json);
-         }
-         catch
-         {
-            // Swallow logging exception
+            // Swallow exceptions
          }
       }
    }

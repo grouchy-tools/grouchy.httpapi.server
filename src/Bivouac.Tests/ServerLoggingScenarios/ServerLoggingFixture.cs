@@ -9,6 +9,7 @@
    using Bivouac.Abstractions;
    using Bivouac.Exceptions;
    using Bivouac.Middleware;
+   using Bivouac.Services;
 
    public class ServerLoggingFixture
    {
@@ -28,6 +29,8 @@
          _stubEventLogger = new StubEventLogger();
          _testHost = new WebApiTestHost(services =>
          {
+            services.AddServerLoggingServices();
+
             services.AddSingleton<IGetRequestId>(_stubRequestIdGetter);
             services.AddSingleton<IGetCorrelationId>(_stubCorrelationIdGetter);
             services.AddSingleton<ILogEvents>(_stubEventLogger);
@@ -48,12 +51,18 @@
 
       private void Configure(IApplicationBuilder app)
       {
-         app.UseMiddleware<ServerLoggingMiddleware>();
+         app.UseServerLoggingMiddleware();
 
          app.Map("/happy-path", "GET", async context =>
          {
             context.Response.StatusCode = 200;
             await context.Response.WriteAsync("Complete!");
+         });
+
+         app.Map("/happy-path", "POST", async context =>
+         {
+            context.Response.StatusCode = 200;
+            await context.Response.WriteAsync("Complete Post!");
          });
 
          app.Map("/not-found-exception", "GET", context =>
