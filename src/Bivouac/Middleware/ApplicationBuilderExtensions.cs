@@ -11,5 +11,14 @@ namespace Bivouac.Middleware
 
          return app.UseMiddleware<ServerLoggingMiddleware>();
       }
+
+      public static IApplicationBuilder UseStatusEndpointMiddleware(this IApplicationBuilder app)
+      {
+         if (app == null) throw new ArgumentNullException(nameof(app));
+
+         return app
+            .UseMiddleware<PingEndpointMiddleware>()
+            .UseMiddleware<StatusEndpointMiddleware>();
+      }
    }
 }

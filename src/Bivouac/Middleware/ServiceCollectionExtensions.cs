@@ -22,5 +22,15 @@ namespace Bivouac.Middleware
 
          return services;
       }
+
+      public static IServiceCollection AddStatusEndpointServices(this IServiceCollection services, string name)
+      {
+         if (services == null) throw new ArgumentNullException(nameof(services));
+
+         services.TryAdd(ServiceDescriptor.Singleton<IStatusEndpointService>(new StatusEndpointService { Name = name }));
+         services.TryAdd(ServiceDescriptor.Singleton<IStatusAvailabilityService, StatusAvailabilityService>());
+
+         return services;
+      }
    }
 }
