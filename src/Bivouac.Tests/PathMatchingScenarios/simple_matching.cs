@@ -1,6 +1,7 @@
 ﻿namespace Bivouac.Tests.PathMatchingScenarios
 {
    using Bivouac;
+   using Shouldly;
    using Xunit;
 
    public class simple_matching
@@ -11,7 +12,7 @@
       {
          var request = new StubHttpRequest { Method = method, Path = path };
 
-         Assert.True(request.IsFor("GET", pattern));
+         request.IsFor("GET", pattern).ShouldBe(true);
       }
 
       [Theory]
@@ -23,7 +24,7 @@
       {
          var request = new StubHttpRequest { Method = method, Path = path };
 
-         Assert.False(request.IsFor("GET", pattern));
+         request.IsFor("GET", pattern).ShouldBe(false);
       }
    }
 }

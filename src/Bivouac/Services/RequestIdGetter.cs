@@ -23,7 +23,7 @@
          _guidGenerator = guidGenerator;
       }
 
-      public Guid Get()
+      public string Get()
       {
          var context = _httpContextAccessor.HttpContext;
 
@@ -31,21 +31,21 @@
          object idFromContext;
          if (context.Items.TryGetValue(RequestIdKey, out idFromContext))
          {
-            return (Guid)idFromContext;
+            return (string)idFromContext;
          }
 
-         Guid id;
+         string id;
 
          // Then headers...
          StringValues idFromHeaders;
          if (context.Request.Headers.TryGetValue(RequestIdKey, out idFromHeaders))
          {
-            id = Guid.Parse(idFromHeaders[0]);
+            id = idFromHeaders[0];
          }
          else
          {
             // Create one if not in HttpContext or Headers
-            id = _guidGenerator.Generate();
+            id = _guidGenerator.Generate().ToString();
          }
 
          // Finally add to HttpContext

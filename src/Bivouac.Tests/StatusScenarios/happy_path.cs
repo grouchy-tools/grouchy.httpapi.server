@@ -1,9 +1,12 @@
 ﻿namespace Bivouac.Tests.StatusScenarios
 {
+   using System.Collections.Generic;
+   using System.Linq;
    using System.Net.Http;
    using Newtonsoft.Json;
    using Xunit;
    using Bivouac.Model;
+   using Shouldly;
 
    public class happy_path : IClassFixture<happy_path.fixture>
    {
@@ -44,6 +47,14 @@
          Assert.Equal(Availability.Available, status.Availability);
          Assert.Equal("myVersion", status.Version);
          Assert.Equal("myBuild", status.Build);
+      }
+
+      [Fact]
+      public void should_return_json_content_type()
+      {
+         IEnumerable<string> values;
+         _fixture.Response.Content.Headers.TryGetValues("Content-Type", out values).ShouldBe(true);
+         values.Single().ShouldBe("application/json");
       }
 
       [Fact]

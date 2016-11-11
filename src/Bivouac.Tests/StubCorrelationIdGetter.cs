@@ -5,11 +5,11 @@ namespace Bivouac.Tests
 
    public class StubCorrelationIdGetter : IGetCorrelationId
    {
-      public Guid CorrelationId { get; set; }
+      public string CorrelationId { get; set; }
 
       public Exception Exception { get; set; }
 
-      public Guid Get()
+      public string Get()
       {
          if (Exception != null)
          {

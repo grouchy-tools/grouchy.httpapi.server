@@ -65,6 +65,7 @@
             var json = JsonConvert.SerializeObject(response, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
 
             context.Response.StatusCode = 200;
+            context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(json);
          }
          else

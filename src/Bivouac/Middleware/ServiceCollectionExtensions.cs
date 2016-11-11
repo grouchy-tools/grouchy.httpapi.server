@@ -13,8 +13,6 @@ namespace Bivouac.Middleware
       {
          if (services == null) throw new ArgumentNullException(nameof(services));
 
-         services.TryAdd(ServiceDescriptor.Singleton<IServerLoggingService, ServerLoggingService>());
-         services.TryAdd(ServiceDescriptor.Singleton<ILogEvents, ConsoleEventLogger>());
          services.TryAdd(ServiceDescriptor.Singleton<IGetRequestId, RequestIdGetter>());
          services.TryAdd(ServiceDescriptor.Singleton<IGetCorrelationId, CorrelationIdGetter>());
          services.TryAdd(ServiceDescriptor.Singleton<IHttpContextAccessor, HttpContextAccessor>());

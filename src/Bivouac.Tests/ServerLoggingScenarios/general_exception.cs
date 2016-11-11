@@ -1,8 +1,9 @@
 ﻿namespace Bivouac.Tests.ServerLoggingScenarios
 {
    using System.Net.Http;
-   using Newtonsoft.Json;
+   using Bivouac.Events;
    using Xunit;
+   using Shouldly;
 
    public class general_exception : IClassFixture<general_exception.fixture>
    {
@@ -48,37 +49,64 @@
       [Fact]
       public void should_log_three_server_events()
       {
-         Assert.Equal(3, _fixture.StubEventLogger.LoggedEvents.Count);
+         Assert.Equal(3, _fixture.StubHttpServerEventCallback.Events.Count);
       }
 
       [Fact]
       public void should_log_server_request()
       {
-         var json = JsonConvert.SerializeObject(new { eventType = "serverRequest", requestId = _fixture.RequestId, correlationId = _fixture.CorrelationId, method = "GET", uri = "/exception" });
-
-         Assert.Equal(json, _fixture.StubEventLogger.LoggedEvents[0]);
+         _fixture.StubHttpServerEventCallback.Events[0].ShouldBeOfType<HttpServerRequest>();
       }
 
       [Fact]
-      public void should_log_server_error()
+      public void should_log_server_request_with_content()
       {
-         var json = JsonConvert.SerializeObject(new { eventType = "serverError", requestId = _fixture.RequestId, correlationId = _fixture.CorrelationId, method = "GET", uri = "/exception", exceptionType = "Bivouac.Tests.ServerLoggingScenarios.ServerLoggingFixture+CustomException", message = "Custom exception message" });
+         var @event = _fixture.StubHttpServerEventCallback.Events[0];
 
-         Assert.Equal(json, _fixture.StubEventLogger.LoggedEvents[1]);
+         @event.EventType.ShouldBe("HttpServerRequest");
+         @event.Uri.ShouldBe("/exception");
+         @event.Method.ShouldBe("GET");
+         @event.Tags.ShouldContainKeyAndValue("requestId", _fixture.RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId);
+      }
+
+      [Fact]
+      public void should_log_server_exception()
+      {
+         _fixture.StubHttpServerEventCallback.Events[1].ShouldBeOfType<HttpServerException>();
+      }
+
+      [Fact]
+      public void should_log_server_exception_with_content()
+      {
+         var @event = (HttpServerException)_fixture.StubHttpServerEventCallback.Events[1];
+
+         @event.EventType.ShouldBe("HttpServerException");
+         @event.Uri.ShouldBe("/exception");
+         @event.Method.ShouldBe("GET");
+         @event.Exception.ShouldBeOfType<ServerLoggingFixture.CustomException>();
+         @event.Tags.ShouldContainKeyAndValue("requestId", _fixture.RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId);
       }
 
       [Fact]
       public void should_log_server_response()
       {
-         var log = JsonConvert.DeserializeAnonymousType(_fixture.StubEventLogger.LoggedEvents[2], new { eventType = "", requestId = "", correlationId = "", method = "", uri = "", duration = 0, statusCode = 0 });
+         _fixture.StubHttpServerEventCallback.Events[2].ShouldBeOfType<HttpServerResponse>();
+      }
 
-         Assert.Equal("serverResponse", log.eventType);
-         Assert.Equal(_fixture.RequestId.ToString(), log.requestId);
-         Assert.Equal(_fixture.CorrelationId.ToString(), log.correlationId);
-         Assert.Equal("GET", log.method);
-         Assert.Equal("/exception", log.uri);
-         Assert.InRange(log.duration, 0, int.MaxValue);
-         Assert.Equal(500, log.statusCode);
+      [Fact]
+      public void should_log_server_response_with_content()
+      {
+         var @event = (HttpServerResponse)_fixture.StubHttpServerEventCallback.Events[2];
+
+         @event.EventType.ShouldBe("HttpServerResponse");
+         @event.Uri.ShouldBe("/exception");
+         @event.Method.ShouldBe("GET");
+         @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
+         @event.StatusCode.ShouldBe(500);
+         @event.Tags.ShouldContainKeyAndValue("requestId", _fixture.RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId);
       }
    }
 }

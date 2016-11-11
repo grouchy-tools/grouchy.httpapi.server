@@ -6,38 +6,54 @@
    using Microsoft.AspNetCore.Http;
    using Microsoft.Extensions.DependencyInjection;
    using Bivouac.Abstractions;
+   using Bivouac.Events;
    using Bivouac.Middleware;
-   using Bivouac.Services;
    using Newtonsoft.Json;
 
    public class IdentifyingFixture
    {
       private readonly StubGuidGenerator _stubGuidGenerator;
-      private readonly StubEventLogger _stubEventLogger;
-      private readonly WebApiTestHost _testHost;
+      private readonly Guid _requestId;
+      private readonly Guid _correlationId;
+      private readonly StubRequestIdGetter _stubRequestIdGetter;
+      private readonly StubCorrelationIdGetter _stubCorrelationIdGetter;
+      private readonly StubHttpServerEventCallback _stubCallback;
+      private readonly LightweightWebApiHost _testHost;
 
-      public IdentifyingFixture(Action<IApplicationBuilder> preConfigure = null)
+      public IdentifyingFixture(Action<IApplicationBuilder, Guid, Guid> preConfigure = null)
       {
          _stubGuidGenerator = new StubGuidGenerator();
-         _stubEventLogger = new StubEventLogger();
-         _testHost = new WebApiTestHost(services =>
+         _requestId = Guid.NewGuid();
+         _correlationId = Guid.NewGuid();
+         _stubRequestIdGetter = new StubRequestIdGetter { RequestId = _requestId.ToString() };
+         _stubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId.ToString() };
+         _stubCallback = new StubHttpServerEventCallback(new CorrelatingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter));
+         _testHost = new LightweightWebApiHost(services =>
          {
             services.AddServerLoggingServices();
 
             services.AddSingleton<IGenerateGuids>(_stubGuidGenerator);
-            services.AddSingleton<ILogEvents>(_stubEventLogger);
+            services.AddSingleton<IHttpServerEventCallback>(_stubCallback);
          }, builder =>
          {
-            preConfigure?.Invoke(builder);
+            preConfigure?.Invoke(builder,_requestId, _correlationId);
             Configure(builder);
          });
       }
 
       public StubGuidGenerator StubGuidGenerator => _stubGuidGenerator;
 
-      public StubEventLogger StubEventLogger => _stubEventLogger;
+      public Guid RequestId => _requestId;
 
-      public WebApiTestHost TestHost => _testHost;
+      public Guid CorrelationId => _correlationId;
+
+      public StubRequestIdGetter StubRequestIdGetter => _stubRequestIdGetter;
+
+      public StubCorrelationIdGetter StubCorrelationIdGetter => _stubCorrelationIdGetter;
+
+      public StubHttpServerEventCallback StubHttpServerEventCallback => _stubCallback;
+
+      public LightweightWebApiHost TestHost => _testHost;
 
       private void Configure(IApplicationBuilder app)
       {

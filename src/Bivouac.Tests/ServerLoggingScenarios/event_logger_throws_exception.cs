@@ -12,7 +12,7 @@
 
          public fixture()
          {
-            StubEventLogger.Exception = new Exception();
+            StubHttpServerEventCallback.Exception = new Exception();
 
             Response = TestHost.Get("/exception");
          }

@@ -7,47 +7,47 @@
    using Microsoft.Extensions.DependencyInjection;
    using Microsoft.AspNetCore.Http;
    using Bivouac.Abstractions;
+   using Bivouac.Events;
    using Bivouac.Exceptions;
    using Bivouac.Middleware;
-   using Bivouac.Services;
 
    public class ServerLoggingFixture
    {
-      private readonly Guid _requestId;
-      private readonly Guid _correlationId;
+      private readonly string _requestId;
+      private readonly string _correlationId;
       private readonly StubRequestIdGetter _stubRequestIdGetter;
       private readonly StubCorrelationIdGetter _stubCorrelationIdGetter;
-      private readonly StubEventLogger _stubEventLogger;
-      private readonly WebApiTestHost _testHost;
+      private readonly StubHttpServerEventCallback _stubCallback;
+      private readonly LightweightWebApiHost _testHost;
 
       public ServerLoggingFixture()
       {
-         _requestId = Guid.NewGuid();
-         _correlationId = Guid.NewGuid();
+         _requestId = Guid.NewGuid().ToString();
+         _correlationId = Guid.NewGuid().ToString();
          _stubRequestIdGetter = new StubRequestIdGetter { RequestId = _requestId };
          _stubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
-         _stubEventLogger = new StubEventLogger();
-         _testHost = new WebApiTestHost(services =>
+         _stubCallback = new StubHttpServerEventCallback(new CorrelatingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter));
+         _testHost = new LightweightWebApiHost(services =>
          {
             services.AddServerLoggingServices();
 
             services.AddSingleton<IGetRequestId>(_stubRequestIdGetter);
             services.AddSingleton<IGetCorrelationId>(_stubCorrelationIdGetter);
-            services.AddSingleton<ILogEvents>(_stubEventLogger);
+            services.AddSingleton<IHttpServerEventCallback>(_stubCallback);
          }, Configure);
       }
+
+      public string RequestId => _requestId;
+
+      public string CorrelationId => _correlationId;
 
       public StubRequestIdGetter StubRequestIdGetter => _stubRequestIdGetter;
 
       public StubCorrelationIdGetter StubCorrelationIdGetter => _stubCorrelationIdGetter;
 
-      public StubEventLogger StubEventLogger => _stubEventLogger;
+      public StubHttpServerEventCallback StubHttpServerEventCallback => _stubCallback;
 
-      public Guid RequestId => _requestId;
-
-      public Guid CorrelationId => _correlationId;
-
-      public WebApiTestHost TestHost => _testHost;
+      public LightweightWebApiHost TestHost => _testHost;
 
       private void Configure(IApplicationBuilder app)
       {
@@ -81,7 +81,7 @@
          });
       }
 
-      private class CustomException : Exception
+      public class CustomException : Exception
       {
          public CustomException(string message) : base(message)
          {

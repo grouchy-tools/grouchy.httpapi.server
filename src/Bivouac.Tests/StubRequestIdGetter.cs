@@ -5,11 +5,11 @@
 
    public class StubRequestIdGetter : IGetRequestId
    {
-      public Guid RequestId { get; set; }
+      public string RequestId { get; set; }
 
       public Exception Exception { get; set; }
 
-      public Guid Get()
+      public string Get()
       {
          if (Exception != null)
          {

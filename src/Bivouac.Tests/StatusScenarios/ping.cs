@@ -40,7 +40,7 @@
       //   //   Startup.ConfigureServices(services);
       //   //   services.AddSingleton<IServerLoggingService, NoOpServerLoggingService>();
       //   //};
-      //   //var testHost = new WebApiTestHost(configureServices, Startup.Configure);
+      //   //var testHost = new LightweightWebApiHost(configureServices, Startup.Configure);
 
       //   _response = testHost.Get("/ping");
       //}

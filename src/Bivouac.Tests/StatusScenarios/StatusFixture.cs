@@ -6,18 +6,17 @@ namespace Bivouac.Tests.StatusScenarios
    using Microsoft.AspNetCore.Http;
    using Bivouac.Abstractions;
    using Bivouac.Middleware;
-   using Microsoft.AspNetCore.Hosting.Internal;
 
    public class StatusFixture
    {
       private readonly StubStatusEndpointService _statusEndpointService;
-      private readonly WebApiTestHost _testHost;
+      private readonly LightweightWebApiHost _testHost;
 
       public StatusFixture()
       {
          _statusEndpointService = new StubStatusEndpointService();
 
-         _testHost = new WebApiTestHost(services =>
+         _testHost = new LightweightWebApiHost(services =>
          {
             services.AddStatusEndpointServices("test-host");
 
@@ -28,7 +27,7 @@ namespace Bivouac.Tests.StatusScenarios
 
       public StubStatusEndpointService StubStatusEndpointService => _statusEndpointService;
 
-      public WebApiTestHost TestHost => _testHost;
+      public LightweightWebApiHost TestHost => _testHost;
 
       protected virtual void ConfigureServicesBuilder(IServiceCollection services)
       {

@@ -3,7 +3,7 @@
    using System.Collections.Generic;
    using System.Net;
    using Microsoft.AspNetCore.Http;
-   using Bivouac;
+   using Shouldly;
    using Xunit;
 
    public class partial_matching
@@ -30,15 +30,15 @@
          PathString remainder;
          var result = request.IsFor(method, pattern, out tokens, out remainder);
          
-         Assert.True(result);
-         Assert.Equal(expectedTokenKeys.Length, tokens.Count);
+         result.ShouldBe(true);
+         tokens.Count.ShouldBe(expectedTokenKeys.Length);
 
          for (var i = 0; i < expectedTokenKeys.Length; i++)
          {
             Assert.Equal(expectedTokenValues[i], tokens[expectedTokenKeys[i]]);
          }
 
-         Assert.Equal(expectedRemainder, remainder);
+         remainder.ToString().ShouldBe(expectedRemainder);
       }
 
       [Theory]
