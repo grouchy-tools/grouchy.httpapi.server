@@ -12,20 +12,16 @@
    public class ServerLoggingMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly IGetRequestId _requestIdGetter;
       private readonly IHttpServerEventCallback _callback;
 
       public ServerLoggingMiddleware(
          RequestDelegate next,
-         IGetRequestId requestIdGetter,
          IHttpServerEventCallback callback)
       {
          if (next == null) throw new ArgumentNullException(nameof(next));
-         if (requestIdGetter == null) throw new ArgumentNullException(nameof(requestIdGetter));
          if (callback == null) throw new ArgumentNullException(nameof(callback));
 
          _next = next;
-         _requestIdGetter = requestIdGetter;
          _callback = callback;
       }
 
@@ -33,9 +29,8 @@
       {
          if (context == null) throw new ArgumentNullException(nameof(context));
 
-         var requestId = SafeGetter(_requestIdGetter.Get);
          var stopwatch = Stopwatch.StartNew();
-         EventCallback(() => HttpServerRequest.Create(requestId, context));
+         EventCallback(() => HttpServerRequest.Create(context));
 
          try
          {
@@ -49,11 +44,11 @@
          {
             await WriteResponse(context, HttpStatusCode.InternalServerError, "FAIL!");
 
-            EventCallback(() => HttpServerException.Create(requestId, context, e));
+            EventCallback(() => HttpServerException.Create(context, e));
          }
 
          stopwatch.Stop();
-         EventCallback(() => HttpServerResponse.Create(requestId, context, stopwatch.ElapsedMilliseconds));
+         EventCallback(() => HttpServerResponse.Create(context, stopwatch.ElapsedMilliseconds));
       }
 
       private static async Task WriteResponse(HttpContext context, HttpStatusCode statusCode, string plainText)

@@ -61,8 +61,8 @@
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/happy-path");
          @event.Method.ShouldBe("GET");
-         @event.RequestId.ShouldBe(_fixture.RequestId);
-         @event.Tags.ShouldNotContainKey("correlationId");
+         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
+         @event.Tags.ShouldNotContainKey("correlation-id");
       }
 
       [Fact]
@@ -79,8 +79,8 @@
          @event.EventType.ShouldBe("HttpServerResponse");
          @event.Uri.ShouldBe("/happy-path");
          @event.Method.ShouldBe("GET");
-         @event.RequestId.ShouldBe(_fixture.RequestId);
-         @event.Tags.ShouldNotContainKey("correlationId");
+         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
+         @event.Tags.ShouldNotContainKey("correlation-id");
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(200);
       }

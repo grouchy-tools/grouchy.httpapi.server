@@ -9,8 +9,6 @@
    {
       public string EventType => nameof(HttpServerException);
 
-      public string RequestId { get; set; }
-
       public DateTimeOffset Timestamp { get; set; }
 
       public string Uri { get; set; }
@@ -21,11 +19,10 @@
 
       public Exception Exception { get; set; }
 
-      public static HttpServerException Create(string requestId, HttpContext context, Exception exception)
+      public static HttpServerException Create(HttpContext context, Exception exception)
       {
          return new HttpServerException
          {
-            RequestId = requestId,
             Timestamp = DateTimeOffset.UtcNow,
             Method = context.Request.Method,
             Uri = context.Request.Path + context.Request.QueryString,

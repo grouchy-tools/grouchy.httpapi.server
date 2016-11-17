@@ -62,8 +62,8 @@
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/get-ids-from-context");
          @event.Method.ShouldBe("GET");
-         @event.RequestId = _fixture.RequestId.ToString();
-         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId.ToString());
       }
    }
 }

@@ -59,8 +59,8 @@
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/happy-path?filter=something");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("requestId", _fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
       }
       
       [Fact]
@@ -77,8 +77,8 @@
          @event.EventType.ShouldBe("HttpServerResponse");
          @event.Uri.ShouldBe("/happy-path?filter=something");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("requestId", _fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(200);
       }

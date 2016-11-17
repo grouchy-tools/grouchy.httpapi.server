@@ -66,8 +66,8 @@
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/http-exception");
          @event.Method.ShouldBe("GET");
-         @event.RequestId.ShouldBe(_fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
       }
 
       [Fact]
@@ -84,8 +84,8 @@
          @event.EventType.ShouldBe("HttpServerResponse");
          @event.Uri.ShouldBe("/http-exception");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("requestId", _fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlationId", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(406);
       }

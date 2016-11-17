@@ -34,13 +34,13 @@
          var requestId = SafeGetter(_requestIdGetter.Get);
          if (requestId != null)
          {
-            @event.Tags.Add("requestId", requestId);
+            @event.Tags.Add("request-id", requestId);
          }
 
          var correlationId = SafeGetter(_correlationIdGetter.Get);
          if (correlationId != null)
          {
-            @event.Tags.Add("correlationId", correlationId);
+            @event.Tags.Add("correlation-id", correlationId);
          }
 
          _next.Invoke(@event);

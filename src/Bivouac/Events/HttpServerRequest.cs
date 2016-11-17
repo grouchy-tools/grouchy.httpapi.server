@@ -11,8 +11,6 @@
    {
       public string EventType => nameof(HttpServerRequest);
 
-      public string RequestId { get; set; }
-
       public DateTimeOffset Timestamp { get; set; }
 
       public string Uri { get; set; }
@@ -23,11 +21,10 @@
 
       public string UserAgent { get; set; }
 
-      public static HttpServerRequest Create(string requestId, HttpContext context)
+      public static HttpServerRequest Create(HttpContext context)
       {
          return new HttpServerRequest
          {
-            RequestId = requestId,
             Timestamp = DateTimeOffset.UtcNow,
             Method = context.Request.Method,
             Uri = context.Request.Path + context.Request.QueryString,

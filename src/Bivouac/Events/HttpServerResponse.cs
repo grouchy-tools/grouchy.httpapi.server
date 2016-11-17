@@ -9,8 +9,6 @@
    {
       public string EventType => nameof(HttpServerResponse);
 
-      public string RequestId { get; set; }
-
       public DateTimeOffset Timestamp { get; set; }
 
       public string Uri { get; set; }
@@ -23,11 +21,10 @@
 
       public int StatusCode { get; set; }
 
-      public static HttpServerResponse Create(string requestId, HttpContext context, long durationMs)
+      public static HttpServerResponse Create(HttpContext context, long durationMs)
       {
          return new HttpServerResponse
          {
-            RequestId = requestId,
             Timestamp = DateTimeOffset.UtcNow,
             Method = context.Request.Method,
             Uri = context.Request.Path + context.Request.QueryString,
