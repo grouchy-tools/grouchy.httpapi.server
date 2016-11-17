@@ -8,8 +8,6 @@
 
    public class StubHttpServerEventCallback : IHttpServerEventCallback
    {
-      private readonly IHttpServerEventCallback _httpServerEventCallback;
-
       public Exception Exception { get; set; }
 
       public List<IHttpServerEvent> Events { get; } = new List<IHttpServerEvent>();
@@ -20,11 +18,6 @@
 
       public HttpServerException[] Exceptions => Events.OfType<HttpServerException>().ToArray();
 
-      public StubHttpServerEventCallback(IHttpServerEventCallback httpServerEventCallback)
-      {
-         _httpServerEventCallback = httpServerEventCallback;
-      }
-
       public virtual void Invoke(IHttpServerEvent @event)
       {
          if (Exception != null)
@@ -32,7 +25,6 @@
             throw Exception;
          }
 
-         _httpServerEventCallback.Invoke(@event);
          Events.Add(@event);
       }
    }

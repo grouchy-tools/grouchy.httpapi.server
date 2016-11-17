@@ -29,14 +29,15 @@
          var requestIdGetter = new StubRequestIdGetter { RequestId = _currentRequestId };
          var correlationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
 
-         _callback = new StubHttpClientEventCallback(new CorrelatingHttpClientEventCallback(requestIdGetter, correlationIdGetter));
+         _callback = new StubHttpClientEventCallback();
+         var correlatingCallback = new CorrelatingHttpClientEventCallback(requestIdGetter, correlationIdGetter, _callback);
 
          using (var webApi = new PingWebApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
             var httpClient = new SimpleHttpClient(baseHttpClient)
                .AddCorrelatingHeaders(correlationIdGetter)
-               .AddLogging(_callback);
+               .AddLogging(correlatingCallback);
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;

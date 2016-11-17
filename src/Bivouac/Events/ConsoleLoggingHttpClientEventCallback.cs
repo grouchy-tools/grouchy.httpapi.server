@@ -1,4 +1,4 @@
-namespace Bivouac.Infrastructure
+namespace Bivouac.Events
 {
    using System;
    using Burble.Abstractions;

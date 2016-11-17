@@ -27,7 +27,7 @@ namespace Bivouac.Events
 
       public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
       {
-         request.Headers.Add("correlation-id", _correlationIdGetter.Get().ToString());
+         request.Headers.Add("correlation-id", _correlationIdGetter.Get());
 
          return _httpClient.SendAsync(request);
       }

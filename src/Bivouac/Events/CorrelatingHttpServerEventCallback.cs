@@ -8,16 +8,20 @@
    {
       private readonly IGetRequestId _requestIdGetter;
       private readonly IGetCorrelationId _correlationIdGetter;
+      private readonly IHttpServerEventCallback _next;
 
       public CorrelatingHttpServerEventCallback(
          IGetRequestId requestIdGetter,
-         IGetCorrelationId correlationIdGetter)
+         IGetCorrelationId correlationIdGetter,
+         IHttpServerEventCallback next)
       {
          if (requestIdGetter == null) throw new ArgumentNullException(nameof(requestIdGetter));
          if (correlationIdGetter == null) throw new ArgumentNullException(nameof(correlationIdGetter));
+         if (next == null) throw new ArgumentNullException(nameof(next));
 
          _requestIdGetter = requestIdGetter;
          _correlationIdGetter = correlationIdGetter;
+         _next = next;
       }
 
       public void Invoke(IHttpServerEvent @event)
@@ -38,6 +42,8 @@
          {
             @event.Tags.Add("correlationId", correlationId);
          }
+
+         _next.Invoke(@event);
       }
 
       private static string SafeGetter(Func<string> getter)

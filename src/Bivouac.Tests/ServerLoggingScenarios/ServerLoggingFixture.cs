@@ -26,14 +26,15 @@
          _correlationId = Guid.NewGuid().ToString();
          _stubRequestIdGetter = new StubRequestIdGetter { RequestId = _requestId };
          _stubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
-         _stubCallback = new StubHttpServerEventCallback(new CorrelatingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter));
+         _stubCallback = new StubHttpServerEventCallback();
+         var correlatingCallback = new CorrelatingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter, _stubCallback);
          _testHost = new LightweightWebApiHost(services =>
          {
             services.AddServerLoggingServices();
 
             services.AddSingleton<IGetRequestId>(_stubRequestIdGetter);
             services.AddSingleton<IGetCorrelationId>(_stubCorrelationIdGetter);
-            services.AddSingleton<IHttpServerEventCallback>(_stubCallback);
+            services.AddSingleton<IHttpServerEventCallback>(correlatingCallback);
          }, Configure);
       }
 
