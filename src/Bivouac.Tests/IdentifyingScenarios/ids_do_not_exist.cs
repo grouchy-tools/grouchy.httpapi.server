@@ -5,7 +5,7 @@
    using Xunit;
    using Shouldly;
 
-   public class ids_does_not_exist : IClassFixture<ids_does_not_exist.fixture>
+   public class ids_do_not_exist : IClassFixture<ids_do_not_exist.fixture>
    {
       public class fixture : IdentifyingFixture
       {
@@ -23,7 +23,7 @@
 
       private readonly fixture _fixture;
 
-      public ids_does_not_exist(fixture fixture)
+      public ids_do_not_exist(fixture fixture)
       {
          _fixture = fixture;
       }
