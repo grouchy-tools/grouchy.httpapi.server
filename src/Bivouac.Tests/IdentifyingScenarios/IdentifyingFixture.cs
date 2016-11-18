@@ -15,8 +15,6 @@
       private readonly StubGuidGenerator _stubGuidGenerator;
       private readonly Guid _requestId;
       private readonly Guid _correlationId;
-      private readonly StubRequestIdGetter _stubRequestIdGetter;
-      private readonly StubCorrelationIdGetter _stubCorrelationIdGetter;
       private readonly StubHttpServerEventCallback _stubCallback;
       private readonly LightweightWebApiHost _testHost;
 
@@ -25,16 +23,13 @@
          _stubGuidGenerator = new StubGuidGenerator();
          _requestId = Guid.NewGuid();
          _correlationId = Guid.NewGuid();
-         _stubRequestIdGetter = new StubRequestIdGetter { RequestId = _requestId.ToString() };
-         _stubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId.ToString() };
          _stubCallback = new StubHttpServerEventCallback();
-         var correlatingCallback = new CorrelatingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter, _stubCallback);
          _testHost = new LightweightWebApiHost(services =>
          {
             services.AddServerLoggingServices();
 
             services.AddSingleton<IGenerateGuids>(_stubGuidGenerator);
-            services.AddSingleton<IHttpServerEventCallback>(correlatingCallback);
+            services.AddSingleton<IHttpServerEventCallback>(sp => CreateCorrelatingCallback(sp, _stubCallback));
          }, builder =>
          {
             preConfigure?.Invoke(builder,_requestId, _correlationId);
@@ -42,15 +37,21 @@
          });
       }
 
+      private static IHttpServerEventCallback CreateCorrelatingCallback(IServiceProvider serviceProvider, StubHttpServerEventCallback callback)
+      {
+         var requestIdGetter = serviceProvider.GetService<IGetRequestId>();
+         var correlationIdGetter = serviceProvider.GetService<IGetCorrelationId>();
+
+         var correlatingCallback = new CorrelatingHttpServerEventCallback(requestIdGetter, correlationIdGetter, callback);
+
+         return correlatingCallback;
+      }
+
       public StubGuidGenerator StubGuidGenerator => _stubGuidGenerator;
 
       public Guid RequestId => _requestId;
 
       public Guid CorrelationId => _correlationId;
-
-      public StubRequestIdGetter StubRequestIdGetter => _stubRequestIdGetter;
-
-      public StubCorrelationIdGetter StubCorrelationIdGetter => _stubCorrelationIdGetter;
 
       public StubHttpServerEventCallback StubHttpServerEventCallback => _stubCallback;
 

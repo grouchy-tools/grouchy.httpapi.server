@@ -14,12 +14,10 @@
       "Bivouac": "*",
       "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
       "Shouldly": "2.8.2",
-      "Burble": "0.0.4-preview0012"
+      "Burble": "0.0.4-preview0022"
    },
 
    "frameworks": {
-      "netcoreapp1.0": {
-         "imports": "dnxcore50"
-      }
+      "netcoreapp1.0": { }
    }
 }

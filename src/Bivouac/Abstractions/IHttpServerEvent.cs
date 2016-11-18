@@ -13,6 +13,6 @@ namespace Bivouac.Abstractions
 
       string Method { get; }
 
-      IDictionary<string, object> Tags { get; set; }
+      IDictionary<string, object> Tags { get; }
    }
 }

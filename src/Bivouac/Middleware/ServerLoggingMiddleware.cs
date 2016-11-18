@@ -70,17 +70,5 @@
             // Swallow exceptions
          }
       }
-
-      private static string SafeGetter(Func<string> getter)
-      {
-         try
-         {
-            return getter();
-         }
-         catch
-         {
-            return null;
-         }
-      }
    }
 }

@@ -26,11 +26,6 @@
 
       public void Invoke(IHttpServerEvent @event)
       {
-         if (@event.Tags == null)
-         {
-            @event.Tags = new Dictionary<string, object>();
-         }
-
          var requestId = SafeGetter(_requestIdGetter.Get);
          if (requestId != null)
          {

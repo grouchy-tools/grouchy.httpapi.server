@@ -2,6 +2,7 @@
 {
    using System;
    using System.Collections.Generic;
+   using System.Linq;
    using Bivouac.Abstractions;
    using Burble.Abstractions;
 
@@ -27,21 +28,22 @@
 
       public void Invoke(IHttpClientEvent @event)
       {
-         if (@event.Tags == null)
-         {
-            @event.Tags = new Dictionary<string, object>();
-         }
-
          var requestId = SafeGetter(_requestIdGetter.Get);
          if (requestId != null)
          {
-            @event.Tags.Add("originRequestId", requestId);
+            @event.Tags.Add("origin-request-id", requestId);
          }
 
          var correlationId = SafeGetter(_correlationIdGetter.Get);
          if (correlationId != null)
          {
-            @event.Tags.Add("correlationId", correlationId);
+            @event.Tags.Add("correlation-id", correlationId);
+         }
+
+         IEnumerable<string> values;
+         if (@event.Request.Headers.TryGetValues("request-id", out values))
+         {
+            @event.Tags.Add("request-id", values.First());
          }
 
          _next.Invoke(@event);

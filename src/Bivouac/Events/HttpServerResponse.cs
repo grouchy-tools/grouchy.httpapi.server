@@ -15,7 +15,7 @@
 
       public string Method { get; set; }
 
-      public IDictionary<string, object> Tags { get; set; }
+      public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
 
       public long DurationMs { get; set; }
 

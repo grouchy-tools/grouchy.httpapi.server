@@ -27,7 +27,14 @@
       {
          _fixture = fixture;
       }
-      
+
+      [Fact]
+      public void returns_ids_from_context()
+      {
+         _fixture.IdsFromContext["requestId"].Value<string>().ShouldBe(_fixture.RequestId.ToString());
+         _fixture.IdsFromContext["correlationId"].Value<string>().ShouldBe(_fixture.CorrelationId.ToString());
+      }
+
       [Fact]
       public void should_log_server_request()
       {

@@ -26,8 +26,8 @@
             // Inject the request-id and correlation-id into the pipeline
             builder.Use(async (context, next) =>
             {
-               context.Items.Add("request-id", requestId);
-               context.Items.Add("correlation-id", correlationId);
+               context.Items.Add("request-id", requestId.ToString());
+               context.Items.Add("correlation-id", correlationId.ToString());
 
                await next();
             });
