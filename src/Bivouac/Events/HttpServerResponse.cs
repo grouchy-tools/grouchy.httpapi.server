@@ -17,9 +17,9 @@
 
       public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
 
-      public long DurationMs { get; set; }
-
       public int StatusCode { get; set; }
+
+      public long DurationMs { get; set; }
 
       public static HttpServerResponse Create(HttpContext context, long durationMs)
       {
@@ -28,8 +28,8 @@
             Timestamp = DateTimeOffset.UtcNow,
             Method = context.Request.Method,
             Uri = context.Request.Path + context.Request.QueryString,
-            DurationMs = durationMs,
-            StatusCode = (int)context.Response.StatusCode
+            StatusCode = (int)context.Response.StatusCode,
+            DurationMs = durationMs
          };
       }
    }

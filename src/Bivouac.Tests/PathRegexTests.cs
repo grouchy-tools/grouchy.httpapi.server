@@ -1,7 +1,6 @@
 ﻿namespace Bivouac.Tests
 {
    using Xunit;
-   using Bivouac;
 
    public class PathRegexTests
    {

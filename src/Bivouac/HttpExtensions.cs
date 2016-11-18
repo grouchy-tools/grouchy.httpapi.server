@@ -9,6 +9,7 @@ namespace Bivouac
    using Bivouac.Abstractions;
    using Microsoft.Extensions.DependencyInjection;
 
+   [Obsolete]
    public static class HttpExtensions
    {
       private const string GET = "GET";
