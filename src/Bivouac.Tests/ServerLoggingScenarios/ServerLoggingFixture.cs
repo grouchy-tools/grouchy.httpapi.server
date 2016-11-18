@@ -27,14 +27,14 @@
          _stubRequestIdGetter = new StubRequestIdGetter { RequestId = _requestId };
          _stubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
          _stubCallback = new StubHttpServerEventCallback();
-         var correlatingCallback = new CorrelatingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter, _stubCallback);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter, _stubCallback);
          _testHost = new LightweightWebApiHost(services =>
          {
             services.AddServerLoggingServices();
 
             services.AddSingleton<IGetRequestId>(_stubRequestIdGetter);
             services.AddSingleton<IGetCorrelationId>(_stubCorrelationIdGetter);
-            services.AddSingleton<IHttpServerEventCallback>(correlatingCallback);
+            services.AddSingleton<IHttpServerEventCallback>(identifyingCallback);
          }, Configure);
       }
 

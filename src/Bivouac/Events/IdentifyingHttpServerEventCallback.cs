@@ -1,21 +1,18 @@
 ﻿namespace Bivouac.Events
 {
    using System;
-   using System.Collections.Generic;
-   using System.Linq;
    using Bivouac.Abstractions;
-   using Burble.Abstractions;
 
-   public class CorrelatingHttpClientEventCallback : IHttpClientEventCallback
+   public class IdentifyingHttpServerEventCallback : IHttpServerEventCallback
    {
       private readonly IGetRequestId _requestIdGetter;
       private readonly IGetCorrelationId _correlationIdGetter;
-      private readonly IHttpClientEventCallback _next;
+      private readonly IHttpServerEventCallback _next;
 
-      public CorrelatingHttpClientEventCallback(
+      public IdentifyingHttpServerEventCallback(
          IGetRequestId requestIdGetter,
          IGetCorrelationId correlationIdGetter,
-         IHttpClientEventCallback next)
+         IHttpServerEventCallback next)
       {
          if (requestIdGetter == null) throw new ArgumentNullException(nameof(requestIdGetter));
          if (correlationIdGetter == null) throw new ArgumentNullException(nameof(correlationIdGetter));
@@ -26,24 +23,18 @@
          _next = next;
       }
 
-      public void Invoke(IHttpClientEvent @event)
+      public void Invoke(IHttpServerEvent @event)
       {
          var requestId = SafeGetter(_requestIdGetter.Get);
          if (requestId != null)
          {
-            @event.Tags.Add("origin-request-id", requestId);
+            @event.Tags.Add("request-id", requestId);
          }
 
          var correlationId = SafeGetter(_correlationIdGetter.Get);
          if (correlationId != null)
          {
             @event.Tags.Add("correlation-id", correlationId);
-         }
-
-         IEnumerable<string> values;
-         if (@event.Request.Headers.TryGetValues("request-id", out values))
-         {
-            @event.Tags.Add("request-id", values.First());
          }
 
          _next.Invoke(@event);

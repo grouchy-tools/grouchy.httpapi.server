@@ -5,9 +5,9 @@
 
    public static class HttpClientExtensions
    {
-      public static IHttpClient AddCorrelatingHeaders(this IHttpClient httpClient, IGetCorrelationId correlationIdGetter, IGenerateGuids guidGenerator, string service, string version = null, string environment = null)
+      public static IHttpClient AddIdentifyingHeaders(this IHttpClient httpClient, IGetCorrelationId correlationIdGetter, IGenerateGuids guidGenerator, string service, string version = null, string environment = null)
       {
-         return new CorrelatingHttpClient(httpClient, correlationIdGetter, guidGenerator, service, version, environment);
+         return new IdentifyingHttpClient(httpClient, correlationIdGetter, guidGenerator, service, version, environment);
       }
    }
 }

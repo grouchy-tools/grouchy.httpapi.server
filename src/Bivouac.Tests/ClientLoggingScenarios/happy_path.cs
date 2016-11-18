@@ -29,14 +29,14 @@
          var guidGenerator = new StubGuidGenerator(Guid.Parse(_newRequestId));
 
          _callback = new StubHttpClientEventCallback();
-         var correlatingCallback = new CorrelatingHttpClientEventCallback(requestIdGetter, correlationIdGetter, _callback);
+         var identifyingCallback = new IdentifyingHttpClientEventCallback(requestIdGetter, correlationIdGetter, _callback);
 
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
             var httpClient = new SimpleHttpClient(baseHttpClient)
-               .AddLogging(correlatingCallback)
-               .AddCorrelatingHeaders(correlationIdGetter, guidGenerator, "my-service");
+               .AddLogging(identifyingCallback)
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, "my-service");
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;

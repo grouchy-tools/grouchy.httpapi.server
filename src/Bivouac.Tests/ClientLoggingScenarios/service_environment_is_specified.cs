@@ -22,7 +22,7 @@
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
             var httpClient = new SimpleHttpClient(baseHttpClient)
-               .AddCorrelatingHeaders(correlationIdGetter, guidGenerator, "my-service", environment: "Production");
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, "my-service", environment: "Production");
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;

@@ -11,14 +11,14 @@ namespace Bivouac.Events
    /// <summary>
    /// Add correlation-id and request-id to the request header, creating a new id if necessary
    /// </summary>
-   public class CorrelatingHttpClient : IHttpClient
+   public class IdentifyingHttpClient : IHttpClient
    {
       private readonly IHttpClient _httpClient;
       private readonly IGetCorrelationId _correlationIdGetter;
       private readonly IGenerateGuids _guidGenerator;
       private readonly string _userAgent;
 
-      public CorrelatingHttpClient(
+      public IdentifyingHttpClient(
          IHttpClient httpClient,
          IGetCorrelationId correlationIdGetter,
          IGenerateGuids guidGenerator,

@@ -29,7 +29,7 @@
             services.AddServerLoggingServices();
 
             services.AddSingleton<IGenerateGuids>(_stubGuidGenerator);
-            services.AddSingleton<IHttpServerEventCallback>(sp => CreateCorrelatingCallback(sp, _stubCallback));
+            services.AddSingleton<IHttpServerEventCallback>(sp => CreateIdentifyingCallbackCallback(sp, _stubCallback));
          }, builder =>
          {
             preConfigure?.Invoke(builder,_requestId, _correlationId);
@@ -37,14 +37,14 @@
          });
       }
 
-      private static IHttpServerEventCallback CreateCorrelatingCallback(IServiceProvider serviceProvider, StubHttpServerEventCallback callback)
+      private static IHttpServerEventCallback CreateIdentifyingCallbackCallback(IServiceProvider serviceProvider, StubHttpServerEventCallback callback)
       {
          var requestIdGetter = serviceProvider.GetService<IGetRequestId>();
          var correlationIdGetter = serviceProvider.GetService<IGetCorrelationId>();
 
-         var correlatingCallback = new CorrelatingHttpServerEventCallback(requestIdGetter, correlationIdGetter, callback);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, callback);
 
-         return correlatingCallback;
+         return identifyingCallback;
       }
 
       public StubGuidGenerator StubGuidGenerator => _stubGuidGenerator;
