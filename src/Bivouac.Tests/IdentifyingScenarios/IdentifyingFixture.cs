@@ -29,7 +29,7 @@
             services.AddServerLoggingServices();
 
             services.AddSingleton<IGenerateGuids>(_stubGuidGenerator);
-            services.AddSingleton<IHttpServerEventCallback>(sp => CreateIdentifyingCallbackCallback(sp, _stubCallback));
+            services.AddTransient<IHttpServerEventCallback>(sp => CreateIdentifyingCallbackCallback(sp, _stubCallback));
          }, builder =>
          {
             preConfigure?.Invoke(builder,_requestId, _correlationId);
@@ -63,7 +63,10 @@
 
          app.Map("/get-ids-from-context", "GET", async context =>
          {
-            var response = new { requestId = context.Items["request-id"], correlationId = context.Items["correlation-id"] };
+            var requestIdGetter = context.RequestServices.GetService<IGetRequestId>();
+            var correlationIdGetter = context.RequestServices.GetService<IGetCorrelationId>();
+
+            var response = new { requestId = requestIdGetter.Get(), correlationId = correlationIdGetter.Get() };
             var json = JsonConvert.SerializeObject(response);
 
             context.Response.StatusCode = 200;

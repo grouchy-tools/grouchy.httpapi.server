@@ -5,52 +5,50 @@
    using Microsoft.AspNetCore.Http;
    using Microsoft.Extensions.Primitives;
 
+   /// <remarks>
+   /// Designed to be registered "AsScoped" due to the use of HttpContext
+   /// </remarks>>
    public class CorrelationIdGetter : IGetCorrelationId
    {
       private const string CorrelationIdKey = "correlation-id";
 
-      private readonly IHttpContextAccessor _httpContextAccessor;
+      private readonly HttpContext _httpContext;
       private readonly IGenerateGuids _guidGenerator;
 
+      private string _correlationId;
+
       public CorrelationIdGetter(
-         IHttpContextAccessor httpContextAccessor,
+         HttpContext httpContext,
          IGenerateGuids guidGenerator)
       {
-         if (httpContextAccessor == null) throw new ArgumentNullException(nameof(httpContextAccessor));
+         if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
          if (guidGenerator == null) throw new ArgumentNullException(nameof(guidGenerator));
 
-         _httpContextAccessor = httpContextAccessor;
+         _httpContext = httpContext;
          _guidGenerator = guidGenerator;
       }
 
       public string Get()
       {
-         var context = _httpContextAccessor.HttpContext;
-
-         // Inspect HttpContext first...
-         object idFromContext;
-         if (context.Items.TryGetValue(CorrelationIdKey, out idFromContext))
+         // Use the cached value if available
+         if (_correlationId != null)
          {
-            return (string)idFromContext;
+            return _correlationId;
          }
 
-         string id;
-
-         // Then headers...
+         // Otherwise check the headers...
          StringValues idFromHeaders;
-         if (context.Request.Headers.TryGetValue(CorrelationIdKey, out idFromHeaders))
+         if (_httpContext.Request.Headers.TryGetValue(CorrelationIdKey, out idFromHeaders))
          {
-            id = idFromHeaders[0];
+            _correlationId = idFromHeaders[0];
          }
          else
          {
-            // Create one if not in HttpContext or Headers
-            id = _guidGenerator.Generate().ToString();
+            // Create one if not
+            _correlationId = _guidGenerator.Generate().ToString();
          }
 
-         // Finally add to HttpContext
-         context.Items.Add(CorrelationIdKey, id);
-         return id;
+         return _correlationId;
       }
    }
 }

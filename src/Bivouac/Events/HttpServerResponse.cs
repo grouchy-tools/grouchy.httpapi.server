@@ -13,9 +13,11 @@
 
       public string Uri { get; set; }
 
-      public string Method { get; set; }
+      public string Method => Request.Method;
 
       public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
+
+      public HttpRequest Request { get; set; }
 
       public int StatusCode { get; set; }
 
@@ -26,9 +28,9 @@
          return new HttpServerResponse
          {
             Timestamp = DateTimeOffset.UtcNow,
-            Method = context.Request.Method,
             Uri = context.Request.Path + context.Request.QueryString,
-            StatusCode = (int)context.Response.StatusCode,
+            Request = context.Request,
+            StatusCode = context.Response.StatusCode,
             DurationMs = durationMs
          };
       }

@@ -33,7 +33,9 @@ namespace Bivouac.Events
          {
             var property = base.CreateProperty(member, memberSerialization);
 
-            if (property.DeclaringType.GetInterfaces().Contains(typeof(IHttpServerEvent)) && property.PropertyName == "tags")
+            var implementsHttpClientEvent = property.DeclaringType.GetInterfaces().Contains(typeof(IHttpServerEvent));
+
+            if (implementsHttpClientEvent && property.PropertyName == "tags")
             {
                property.ShouldSerialize = value =>
                {
@@ -41,6 +43,11 @@ namespace Bivouac.Events
                   return @event.Tags != null && @event.Tags.Count != 0;
                };
             }
+            else if (implementsHttpClientEvent && property.PropertyName == "request")
+            {
+               property.ShouldSerialize = value => false;
+            }
+
             return property;
          }
       }

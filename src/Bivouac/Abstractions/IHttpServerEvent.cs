@@ -2,6 +2,7 @@ namespace Bivouac.Abstractions
 {
    using System;
    using System.Collections.Generic;
+   using Microsoft.AspNetCore.Http;
 
    public interface IHttpServerEvent
    {
@@ -14,5 +15,7 @@ namespace Bivouac.Abstractions
       string Method { get; }
 
       IDictionary<string, object> Tags { get; }
+
+      HttpRequest Request { get; }
    }
 }

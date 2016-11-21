@@ -15,9 +15,11 @@
 
       public string Uri { get; set; }
 
-      public string Method { get; set; }
+      public string Method => Request.Method;
 
       public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
+
+      public HttpRequest Request { get; set; }
 
       public string UserAgent { get; set; }
 
@@ -26,8 +28,8 @@
          return new HttpServerRequest
          {
             Timestamp = DateTimeOffset.UtcNow,
-            Method = context.Request.Method,
             Uri = context.Request.Path + context.Request.QueryString,
+            Request = context.Request,
             UserAgent = GetUserAgentProperty(context)
          };
       }

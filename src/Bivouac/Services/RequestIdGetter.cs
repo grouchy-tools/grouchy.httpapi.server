@@ -5,52 +5,50 @@
    using Microsoft.AspNetCore.Http;
    using Microsoft.Extensions.Primitives;
 
+   /// <remarks>
+   /// Designed to be registered "AsScoped" due to the use of HttpContext
+   /// </remarks>>
    public class RequestIdGetter : IGetRequestId
    {
       private const string RequestIdKey = "request-id";
 
-      private readonly IHttpContextAccessor _httpContextAccessor;
+      private readonly HttpContext _httpContext;
       private readonly IGenerateGuids _guidGenerator;
 
+      private string _requestId;
+
       public RequestIdGetter(
-         IHttpContextAccessor httpContextAccessor,
+         HttpContext httpContext,
          IGenerateGuids guidGenerator)
       {
-         if (httpContextAccessor == null) throw new ArgumentNullException(nameof(httpContextAccessor));
+         if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
          if (guidGenerator == null) throw new ArgumentNullException(nameof(guidGenerator));
 
-         _httpContextAccessor = httpContextAccessor;
+         _httpContext = httpContext;
          _guidGenerator = guidGenerator;
       }
 
       public string Get()
       {
-         var context = _httpContextAccessor.HttpContext;
-
-         // Inspect HttpContext first...
-         object idFromContext;
-         if (context.Items.TryGetValue(RequestIdKey, out idFromContext))
+         // Use the cached value if available
+         if (_requestId != null)
          {
-            return (string)idFromContext;
+            return _requestId;
          }
 
-         string id;
-
-         // Then headers...
+         // Otherwise check the headers...
          StringValues idFromHeaders;
-         if (context.Request.Headers.TryGetValue(RequestIdKey, out idFromHeaders))
+         if (_httpContext.Request.Headers.TryGetValue(RequestIdKey, out idFromHeaders))
          {
-            id = idFromHeaders[0];
+            _requestId = idFromHeaders[0];
          }
          else
          {
-            // Create one if not in HttpContext or Headers
-            id = _guidGenerator.Generate().ToString();
+            // Create one if not
+            _requestId = _guidGenerator.Generate().ToString();
          }
 
-         // Finally add to HttpContext
-         context.Items.Add(RequestIdKey, id);
-         return id;
+         return _requestId;
       }
    }
 }

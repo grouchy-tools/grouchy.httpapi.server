@@ -13,9 +13,11 @@
 
       public string Uri { get; set; }
 
-      public string Method { get; set; }
+      public string Method => Request.Method;
 
       public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
+
+      public HttpRequest Request { get; set; }
 
       public Exception Exception { get; set; }
 
@@ -24,8 +26,8 @@
          return new HttpServerException
          {
             Timestamp = DateTimeOffset.UtcNow,
-            Method = context.Request.Method,
             Uri = context.Request.Path + context.Request.QueryString,
+            Request = context.Request,
             Exception = exception
          };
       }

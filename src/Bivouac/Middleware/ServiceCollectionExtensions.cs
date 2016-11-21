@@ -13,8 +13,9 @@ namespace Bivouac.Middleware
       {
          if (services == null) throw new ArgumentNullException(nameof(services));
 
-         services.TryAdd(ServiceDescriptor.Singleton<IGetRequestId, RequestIdGetter>());
-         services.TryAdd(ServiceDescriptor.Singleton<IGetCorrelationId, CorrelationIdGetter>());
+         services.TryAdd(ServiceDescriptor.Scoped<IGetRequestId, RequestIdGetter>());
+         services.TryAdd(ServiceDescriptor.Scoped<IGetCorrelationId, CorrelationIdGetter>());
+         services.TryAdd(ServiceDescriptor.Scoped<HttpContext>(sp => sp.GetService<IHttpContextAccessor>().HttpContext));
          services.TryAdd(ServiceDescriptor.Singleton<IHttpContextAccessor, HttpContextAccessor>());
          services.TryAdd(ServiceDescriptor.Singleton<IGenerateGuids, GuidGenerator>());
 

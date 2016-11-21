@@ -9,7 +9,7 @@
    {
       public class fixture : IdentifyingFixture
       {
-         public readonly JObject IdsFromContext;
+         public readonly JObject Ids;
 
          public fixture()
          {
@@ -17,7 +17,7 @@
 
             var response = TestHost.Get("/get-ids-from-context");
             var content = response.Content.ReadAsStringAsync().Result;
-            IdsFromContext = JObject.Parse(content);
+            Ids = JObject.Parse(content);
          }
       }
 
@@ -31,8 +31,8 @@
       [Fact]
       public void returns_ids_from_context()
       {
-         _fixture.IdsFromContext["requestId"].Value<string>().ShouldBe(_fixture.RequestId.ToString());
-         _fixture.IdsFromContext["correlationId"].Value<string>().ShouldBe(_fixture.CorrelationId.ToString());
+         _fixture.Ids["requestId"].Value<string>().ShouldBe(_fixture.RequestId.ToString());
+         _fixture.Ids["correlationId"].Value<string>().ShouldBe(_fixture.CorrelationId.ToString());
       }
 
       [Fact]

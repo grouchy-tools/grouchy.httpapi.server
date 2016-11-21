@@ -12,25 +12,21 @@
    public class ServerLoggingMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly IHttpServerEventCallback _callback;
 
-      public ServerLoggingMiddleware(
-         RequestDelegate next,
-         IHttpServerEventCallback callback)
+      public ServerLoggingMiddleware(RequestDelegate next)
       {
          if (next == null) throw new ArgumentNullException(nameof(next));
-         if (callback == null) throw new ArgumentNullException(nameof(callback));
 
          _next = next;
-         _callback = callback;
       }
 
-      public async Task Invoke(HttpContext context)
+      public async Task Invoke(HttpContext context, IHttpServerEventCallback callback)
       {
          if (context == null) throw new ArgumentNullException(nameof(context));
+         if (callback == null) throw new ArgumentNullException(nameof(callback));
 
          var stopwatch = Stopwatch.StartNew();
-         EventCallback(() => HttpServerRequest.Create(context));
+         EventCallback(callback, () => HttpServerRequest.Create(context));
 
          try
          {
@@ -44,11 +40,11 @@
          {
             await WriteResponse(context, HttpStatusCode.InternalServerError, "FAIL!");
 
-            EventCallback(() => HttpServerException.Create(context, e));
+            EventCallback(callback, () => HttpServerException.Create(context, e));
          }
 
          stopwatch.Stop();
-         EventCallback(() => HttpServerResponse.Create(context, stopwatch.ElapsedMilliseconds));
+         EventCallback(callback, () => HttpServerResponse.Create(context, stopwatch.ElapsedMilliseconds));
       }
 
       private static async Task WriteResponse(HttpContext context, HttpStatusCode statusCode, string plainText)
@@ -58,12 +54,12 @@
          await context.Response.WriteAsync(plainText);
       }
 
-      private void EventCallback<TEvent>(Func<TEvent> eventFactory) where TEvent : IHttpServerEvent
+      private static void EventCallback<TEvent>(IHttpServerEventCallback callback, Func<TEvent> eventFactory) where TEvent : IHttpServerEvent
       {
          try
          {
             var @event = eventFactory();
-            _callback.Invoke(@event);
+            callback.Invoke(@event);
          }
          catch
          {

@@ -1,5 +1,6 @@
 namespace Bivouac.Tests
 {
+   using System.Threading;
    using System.Threading.Tasks;
    using Bivouac.Abstractions;
    using Bivouac.Model;
@@ -12,11 +13,11 @@ namespace Bivouac.Tests
 
       public int DelayMs { get; set; }
 
-      public async Task<Status> GetStatus()
+      public async Task<Status> GetStatus(CancellationToken cancellationToken)
       {
          if (DelayMs != 0)
          {
-            await Task.Delay(DelayMs);
+            await Task.Delay(DelayMs, cancellationToken);
          }
 
          return Status;

@@ -3,6 +3,7 @@ namespace Bivouac.Events
    using System;
    using System.Net.Http;
    using System.Runtime.InteropServices;
+   using System.Threading;
    using System.Threading.Tasks;
    using Burble.Abstractions;
    using Bivouac.Abstractions;
@@ -41,11 +42,16 @@ namespace Bivouac.Events
 
       public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
       {
+         return SendAsync(request, CancellationToken.None);
+      }
+
+      public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+      {
          request.Headers.Add(HeaderNames.UserAgent, _userAgent);
          request.Headers.Add("correlation-id", _correlationIdGetter.Get());
          request.Headers.Add("request-id", _guidGenerator.Generate().ToString());
 
-         return _httpClient.SendAsync(request);
+         return _httpClient.SendAsync(request, cancellationToken);
       }
 
       private static string BuildUserAgent(string service, string version, string environment)

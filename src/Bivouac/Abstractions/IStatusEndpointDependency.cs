@@ -1,5 +1,6 @@
 namespace Bivouac.Abstractions
 {
+   using System.Threading;
    using System.Threading.Tasks;
    using Bivouac.Model;
 
@@ -7,6 +8,6 @@ namespace Bivouac.Abstractions
    {
       string Name { get; }
 
-      Task<Status> GetStatus();
+      Task<Status> GetStatus(CancellationToken cancellationToken);
    }
 }

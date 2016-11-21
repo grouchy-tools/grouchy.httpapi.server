@@ -2,6 +2,8 @@
 {
    using System;
    using System.Linq;
+   using System.Net.Http;
+   using System.Threading;
    using System.Threading.Tasks;
    using Bivouac.Abstractions;
    using Bivouac.Model;
@@ -47,10 +49,19 @@
 
             if (statusEndpointDependencies.Length != 0)
             {
-               var statusDependencies = statusEndpointDependencies.Select(d => new { d.Name, StatusTask = d.GetStatus()}).ToArray();
-
                // Allow dependencies to complete within 3 seconds
-               await Task.WhenAny(Task.WhenAll(statusDependencies.Select(c => c.StatusTask)), Task.Delay(3000));
+               var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+               var statusDependencies = statusEndpointDependencies.Select(d => new { d.Name, StatusTask = d.GetStatus(cancellationTokenSource.Token) }).ToArray();
+
+               try
+               {
+                  // Wait for all to complete or be cancelled
+                  await Task.WhenAll(statusDependencies.Select(c => c.StatusTask));
+               }
+               catch (TaskCanceledException)
+               {
+                  // Ignore cancellations
+               }
 
                var dependencies = statusDependencies.Select(c => c.StatusTask.Status == TaskStatus.RanToCompletion ? c.StatusTask.Result : new Status { Name = c.Name, Availability = Availability.Unknown }).ToArray();
 
