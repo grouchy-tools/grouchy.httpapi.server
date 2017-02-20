@@ -17,6 +17,9 @@
       public string Build { get; set; }
 
       [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+      public string Host { get; set; }
+
+      [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
       public Status[] Dependencies { get; set; }
    }
 }

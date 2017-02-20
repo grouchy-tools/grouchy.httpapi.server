@@ -55,7 +55,7 @@
          var content = _fixture.Response.Content.ReadAsStringAsync().Result;
 
          // Dependency that is timed-out will be status Unknown
-         Assert.Equal("{\"name\":null,\"availability\":\"Unknown\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Unknown\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
+         Assert.Equal("{\"name\":null,\"availability\":\"Unknown\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Unknown\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
       }
 
       [Fact]

@@ -47,7 +47,7 @@
       {
          var content = _fixture.Response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal("{\"name\":null,\"availability\":\"Limited\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Limited\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
+         Assert.Equal("{\"name\":null,\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Limited\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
       }
    }
 }

@@ -35,7 +35,7 @@
       {
          var content = _fixture.Response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal("{\"name\":null,\"availability\":\"Available\"}", content);
+         Assert.Equal("{\"name\":null,\"availability\":\"Available\",\"host\":\"http://localhost\"}", content);
       }
    }
 }

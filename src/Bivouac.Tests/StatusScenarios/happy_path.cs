@@ -47,6 +47,7 @@
          Assert.Equal(Availability.Available, status.Availability);
          Assert.Equal("myVersion", status.Version);
          Assert.Equal("myBuild", status.Build);
+         Assert.Equal("http://localhost", status.Host);
       }
 
       [Fact]
@@ -62,7 +63,7 @@
       {
          var content = _fixture.Response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal("{\"name\":\"myName\",\"availability\":\"Available\",\"version\":\"myVersion\",\"build\":\"myBuild\"}", content);
+         Assert.Equal("{\"name\":\"myName\",\"availability\":\"Available\",\"version\":\"myVersion\",\"build\":\"myBuild\",\"host\":\"http://localhost\"}", content);
       }
    }
 }
