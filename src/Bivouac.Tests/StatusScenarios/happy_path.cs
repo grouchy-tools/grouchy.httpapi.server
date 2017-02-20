@@ -18,7 +18,6 @@
          {
             StubStatusEndpointService.Name = "myName";
             StubStatusEndpointService.Version = "myVersion";
-            StubStatusEndpointService.Build = "myBuild";
 
             Response = TestHost.Get("/status");
          }
@@ -46,7 +45,6 @@
          Assert.Equal("myName", status.Name);
          Assert.Equal(Availability.Available, status.Availability);
          Assert.Equal("myVersion", status.Version);
-         Assert.Equal("myBuild", status.Build);
          Assert.Equal("http://localhost", status.Host);
       }
 
@@ -63,7 +61,7 @@
       {
          var content = _fixture.Response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal("{\"name\":\"myName\",\"availability\":\"Available\",\"version\":\"myVersion\",\"build\":\"myBuild\",\"host\":\"http://localhost\"}", content);
+         Assert.Equal("{\"name\":\"myName\",\"availability\":\"Available\",\"version\":\"myVersion\",\"host\":\"http://localhost\"}", content);
       }
    }
 }

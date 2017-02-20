@@ -35,7 +35,7 @@
                   new Status
                   {
                      Name="level2",
-                     Build="build2",
+                     Version= "version2",
                      Availability = Availability.Available
                   }
                }
@@ -76,7 +76,6 @@
          Assert.Equal("level1", level1.Name);
          Assert.Equal(Availability.Available, level1.Availability);
          Assert.Equal("version1", level1.Version);
-         Assert.Null(level1.Build);
          Assert.Equal(1, level1.Dependencies.Length);
       }
 
@@ -88,8 +87,7 @@
 
          Assert.Equal("level2", level2.Name);
          Assert.Equal(Availability.Available, level2.Availability);
-         Assert.Null(level2.Version);
-         Assert.Equal("build2", level2.Build);
+         Assert.Equal("version2", level2.Version);
          Assert.Null(level2.Dependencies);
       }
    }

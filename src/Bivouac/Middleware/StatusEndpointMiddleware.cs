@@ -42,7 +42,6 @@
             {
                Name = _statusEndpointService.GetName(),
                Version = _statusEndpointService.GetVersion(),
-               Build = _statusEndpointService.GetBuild(),
                Host = $"{context.Request.Scheme}://{context.Request.Host}"
             };
 

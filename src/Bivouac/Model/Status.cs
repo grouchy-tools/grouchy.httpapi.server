@@ -14,9 +14,6 @@
       public string Version { get; set; }
 
       [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-      public string Build { get; set; }
-
-      [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
       public string Host { get; set; }
 
       [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

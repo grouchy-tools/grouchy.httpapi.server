@@ -7,8 +7,6 @@ namespace Bivouac.Abstractions
       string GetName();
 
       string GetVersion();
-
-      string GetBuild();
    }
 
    public interface IStatusAvailabilityService
