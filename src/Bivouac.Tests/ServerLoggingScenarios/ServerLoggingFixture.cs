@@ -15,8 +15,10 @@
    {
       private readonly string _requestId;
       private readonly string _correlationId;
+      private readonly string _version;
       private readonly StubRequestIdGetter _stubRequestIdGetter;
       private readonly StubCorrelationIdGetter _stubCorrelationIdGetter;
+      private readonly StubAssemblyVersionGetter _stubAssemblyVersionGetter;
       private readonly StubHttpServerEventCallback _stubCallback;
       private readonly LightweightWebApiHost _testHost;
 
@@ -24,10 +26,12 @@
       {
          _requestId = Guid.NewGuid().ToString();
          _correlationId = Guid.NewGuid().ToString();
+         _version = "1.2.3-server";
          _stubRequestIdGetter = new StubRequestIdGetter { RequestId = _requestId };
          _stubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
+         _stubAssemblyVersionGetter = new StubAssemblyVersionGetter { Version = _version };
          _stubCallback = new StubHttpServerEventCallback();
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter, _stubCallback);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(_stubRequestIdGetter, _stubCorrelationIdGetter, _stubAssemblyVersionGetter, _stubCallback);
          _testHost = new LightweightWebApiHost(services =>
          {
             services.AddServerLoggingServices();
@@ -42,9 +46,13 @@
 
       public string CorrelationId => _correlationId;
 
+      public string Version => _version; 
+
       public StubRequestIdGetter StubRequestIdGetter => _stubRequestIdGetter;
 
       public StubCorrelationIdGetter StubCorrelationIdGetter => _stubCorrelationIdGetter;
+
+      public StubAssemblyVersionGetter StubAssemblyVersionGetter => _stubAssemblyVersionGetter;
 
       public StubHttpServerEventCallback StubHttpServerEventCallback => _stubCallback;
 

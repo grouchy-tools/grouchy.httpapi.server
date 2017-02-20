@@ -22,7 +22,7 @@
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
             var httpClient = new SimpleHttpClient(baseHttpClient)
-               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, "my-service", "1.1", "Staging");
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, "my-service", "1.1.2", "Staging");
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;
@@ -33,7 +33,7 @@
       [Fact]
       public void user_agent_is_added_to_the_headers()
       {
-         _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service/1.1 Staging ({RuntimeInformation.OSDescription.Trim()})");
+         _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service/1.1.2 Staging ({RuntimeInformation.OSDescription.Trim()})");
       }
    }
 }

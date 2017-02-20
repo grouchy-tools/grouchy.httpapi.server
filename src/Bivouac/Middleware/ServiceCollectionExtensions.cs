@@ -18,6 +18,7 @@ namespace Bivouac.Middleware
          services.TryAdd(ServiceDescriptor.Scoped<HttpContext>(sp => sp.GetService<IHttpContextAccessor>().HttpContext));
          services.TryAdd(ServiceDescriptor.Singleton<IHttpContextAccessor, HttpContextAccessor>());
          services.TryAdd(ServiceDescriptor.Singleton<IGenerateGuids, GuidGenerator>());
+         services.TryAdd(ServiceDescriptor.Singleton<IGetAssemblyVersion, AssemblyVersionGetter>());
 
          return services;
       }

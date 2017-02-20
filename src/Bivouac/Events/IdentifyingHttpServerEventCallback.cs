@@ -7,48 +7,48 @@
    {
       private readonly IGetRequestId _requestIdGetter;
       private readonly IGetCorrelationId _correlationIdGetter;
+      private readonly IGetAssemblyVersion _assemblyVersionGetter;
       private readonly IHttpServerEventCallback _next;
 
       public IdentifyingHttpServerEventCallback(
          IGetRequestId requestIdGetter,
          IGetCorrelationId correlationIdGetter,
+         IGetAssemblyVersion assemblyVersionGetter,
          IHttpServerEventCallback next)
       {
          if (requestIdGetter == null) throw new ArgumentNullException(nameof(requestIdGetter));
          if (correlationIdGetter == null) throw new ArgumentNullException(nameof(correlationIdGetter));
+         if (assemblyVersionGetter == null) throw new ArgumentNullException(nameof(assemblyVersionGetter));
          if (next == null) throw new ArgumentNullException(nameof(next));
 
          _requestIdGetter = requestIdGetter;
          _correlationIdGetter = correlationIdGetter;
+         _assemblyVersionGetter = assemblyVersionGetter;
          _next = next;
       }
 
       public void Invoke(IHttpServerEvent @event)
       {
-         var requestId = SafeGetter(_requestIdGetter.Get);
-         if (requestId != null)
-         {
-            @event.Tags.Add("request-id", requestId);
-         }
-
-         var correlationId = SafeGetter(_correlationIdGetter.Get);
-         if (correlationId != null)
-         {
-            @event.Tags.Add("correlation-id", correlationId);
-         }
+         AddTag(@event, "request-id", _requestIdGetter.Get);
+         AddTag(@event, "correlation-id", _correlationIdGetter.Get);
+         AddTag(@event, "version", _assemblyVersionGetter.Get);
 
          _next.Invoke(@event);
       }
 
-      private static string SafeGetter(Func<string> getter)
+      private static void AddTag(IHttpServerEvent @event, string key, Func<string> valueGetter)
       {
          try
          {
-            return getter();
+            var value = valueGetter();
+            if (value != null)
+            {
+               @event.Tags.Add(key, value);
+            }
          }
          catch
          {
-            return null;
+            // Ignore any exceptions
          }
       }
    }

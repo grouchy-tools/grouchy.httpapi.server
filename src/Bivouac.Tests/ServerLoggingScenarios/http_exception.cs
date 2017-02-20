@@ -68,6 +68,7 @@
          @event.Method.ShouldBe("GET");
          @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
          @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("version", _fixture.Version);
       }
 
       [Fact]
@@ -86,6 +87,7 @@
          @event.Method.ShouldBe("GET");
          @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
          @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("version", _fixture.Version);
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(406);
       }

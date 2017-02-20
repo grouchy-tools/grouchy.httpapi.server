@@ -41,8 +41,9 @@
       {
          var requestIdGetter = serviceProvider.GetService<IGetRequestId>();
          var correlationIdGetter = serviceProvider.GetService<IGetCorrelationId>();
+         var assemblyVersionGetter = serviceProvider.GetService<IGetAssemblyVersion>();
 
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, callback);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, assemblyVersionGetter, callback);
 
          return identifyingCallback;
       }
