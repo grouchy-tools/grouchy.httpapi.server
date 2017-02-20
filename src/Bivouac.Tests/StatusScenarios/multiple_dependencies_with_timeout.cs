@@ -61,7 +61,7 @@
       [Fact]
       public void duration_should_be_around_three_seconds()
       {
-         Assert.InRange(_fixture.Duration, 2800, 3300);
+         Assert.InRange(_fixture.Duration, 2800, 3400);
       }
    }
 }
