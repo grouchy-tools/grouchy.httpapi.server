@@ -17,33 +17,31 @@ namespace Bivouac.Events
       private readonly IHttpClient _httpClient;
       private readonly IGetCorrelationId _correlationIdGetter;
       private readonly IGenerateGuids _guidGenerator;
+      private readonly IGetAssemblyVersion _assemblyVersionGetter;
       private readonly string _userAgent;
 
       public IdentifyingHttpClient(
          IHttpClient httpClient,
          IGetCorrelationId correlationIdGetter,
          IGenerateGuids guidGenerator,
+         IGetAssemblyVersion assemblyVersionGetter,
          string service,
-         string version,
          string environment)
       {
          if (httpClient == null) throw new ArgumentNullException(nameof(httpClient));
          if (correlationIdGetter == null) throw new ArgumentNullException(nameof(correlationIdGetter));
          if (guidGenerator == null) throw new ArgumentNullException(nameof(guidGenerator));
+         if (assemblyVersionGetter == null) throw new ArgumentNullException(nameof(assemblyVersionGetter));
          if (service == null) throw new ArgumentNullException(nameof(service));
 
          _httpClient = httpClient;
          _correlationIdGetter = correlationIdGetter;
          _guidGenerator = guidGenerator;
-         _userAgent = BuildUserAgent(service, version, environment);
+         _assemblyVersionGetter = assemblyVersionGetter;
+         _userAgent = BuildUserAgent(service, environment);
       }
 
       public Uri BaseAddress => _httpClient.BaseAddress;
-
-      public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
-      {
-         return SendAsync(request, CancellationToken.None);
-      }
 
       public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
       {
@@ -54,9 +52,10 @@ namespace Bivouac.Events
          return _httpClient.SendAsync(request, cancellationToken);
       }
 
-      private static string BuildUserAgent(string service, string version, string environment)
+      private string BuildUserAgent(string service, string environment)
       {
          var userAgent = service;
+         var version = _assemblyVersionGetter.Get();
 
          if (!string.IsNullOrWhiteSpace(version))
          {

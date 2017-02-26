@@ -15,16 +15,14 @@
          public readonly HttpResponseMessage Response;
          public readonly string Content;
 
-         public fixture()
+         public fixture() : base(ConfigureServices)
          {
             Response = TestHost.Get("/status");
             Content = Response.Content.ReadAsStringAsync().Result;
          }
 
-         protected override void ConfigureServicesBuilder(IServiceCollection services)
+         private static void ConfigureServices(IServiceCollection services)
          {
-            base.ConfigureServicesBuilder(services);
-
             var status = new Status
             {
                Name = "level1",

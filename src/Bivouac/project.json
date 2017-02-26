@@ -1,17 +1,17 @@
 {
-   "version": "0.0.2-*",
+   "version": "0.0.3-*",
 
    "dependencies": {
       "Newtonsoft.Json": "9.0.1",
-      "Burble.Abstractions": "0.0.12"
+      "Burble.Abstractions": "0.0.13-preview0024"
    },
 
    "frameworks": {
       "netstandard1.6": {
          "dependencies": {
-            "Microsoft.AspNetCore.Http": "1.0.0",
-            "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
-            "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
+            "Microsoft.AspNetCore.Http":  "1.1.0" ,
+            "Microsoft.AspNetCore.Http.Abstractions": "1.1.0",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0",
             "System.Runtime.InteropServices.RuntimeInformation": "4.3.0"
          }
       }

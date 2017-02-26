@@ -12,9 +12,9 @@
       "dotnet-test-xunit": "2.2.0-preview2-build1029",
       "Banshee": "0.0.2",
       "Bivouac": { "target": "project" },
-      "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
+      "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0",
       "Shouldly": "2.8.2",
-      "Burble": "0.0.4"
+      "Burble.Abstractions": "0.0.13-preview0024"
    },
 
    "frameworks": {

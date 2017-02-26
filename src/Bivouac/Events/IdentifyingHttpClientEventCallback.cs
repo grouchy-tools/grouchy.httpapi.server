@@ -59,6 +59,8 @@
 
       private static string GetRequestIdFromHeader(HttpRequestMessage request)
       {
+         if (request == null) return null;
+
          IEnumerable<string> values;
          if (request.Headers.TryGetValues("request-id", out values))
          {

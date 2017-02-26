@@ -5,8 +5,7 @@
    using System.Runtime.InteropServices;
    using Xunit;
    using Shouldly;
-   using Bivouac.Events;
-   using Burble;
+   using Burble.Abstractions;
    using Newtonsoft.Json.Linq;
 
    public class service_version_and_environment_are_specified
@@ -17,12 +16,13 @@
       {
          var correlationIdGetter = new StubCorrelationIdGetter();
          var guidGenerator = new StubGuidGenerator(Guid.NewGuid());
+         var assemblyVersionGetter = new StubAssemblyVersionGetter { Version = "1.1.2" };
 
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
-            var httpClient = new SimpleHttpClient(baseHttpClient)
-               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, "my-service", "1.1.2", "Staging");
+            var httpClient = new TestHttpClient(baseHttpClient, null)
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, assemblyVersionGetter, "my-service", "Staging");
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;

@@ -7,7 +7,7 @@
    using Xunit;
    using Shouldly;
    using Bivouac.Events;
-   using Burble;
+   using Burble.Abstractions;
    using Newtonsoft.Json.Linq;
 
    public class happy_path
@@ -37,9 +37,8 @@
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
-            var httpClient = new SimpleHttpClient(baseHttpClient)
-               .AddLogging(identifyingCallback)
-               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, "my-service");
+            var httpClient = new TestHttpClient(baseHttpClient, identifyingCallback)
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, assemblyVersionGetter, "my-service");
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;
@@ -48,25 +47,14 @@
       }
       
       [Fact]
-      public void should_log_request_initiated()
+      public void should_log_event_with_tags()
       {
-         var lastRequest = _callback.RequestsInitiated.Last();
+         var lastRequest = _callback.Events.Single();
          lastRequest.Tags.ShouldNotBeNull();
          lastRequest.Tags.ShouldContainKeyAndValue("origin-request-id", _currentRequestId);
          lastRequest.Tags.ShouldContainKeyAndValue("correlation-id", _correlationId);
          lastRequest.Tags.ShouldContainKeyAndValue("request-id", _newRequestId);
          lastRequest.Tags.ShouldContainKeyAndValue("version", _version);
-      }
-
-      [Fact]
-      public void should_log_response_received()
-      {
-         var lastResponse = _callback.ResponsesReceived.Last();
-         lastResponse.Tags.ShouldNotBeNull();
-         lastResponse.Tags.ShouldContainKeyAndValue("origin-request-id", _currentRequestId);
-         lastResponse.Tags.ShouldContainKeyAndValue("correlation-id", _correlationId);
-         lastResponse.Tags.ShouldContainKeyAndValue("request-id", _newRequestId);
-         lastResponse.Tags.ShouldContainKeyAndValue("version", _version);
       }
 
       [Fact]
@@ -86,7 +74,7 @@
       [Fact]
       public void user_agent_is_added_to_the_headers()
       {
-         _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service ({RuntimeInformation.OSDescription.Trim()})");
+         _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service/1.0.1-client ({RuntimeInformation.OSDescription.Trim()})");
       }
    }
 }

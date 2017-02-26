@@ -12,17 +12,15 @@
       {
          public readonly HttpResponseMessage Response;
 
-         public fixture()
+         public fixture() : base(ConfigureServices)
          {
             StubStatusEndpointService.Name = "myName";
 
             Response = TestHost.Get("/status");
          }
 
-         protected override void ConfigureServicesBuilder(IServiceCollection services)
+         private static void ConfigureServices(IServiceCollection services)
          {
-            base.ConfigureServicesBuilder(services);
-
             var status = new Status { Name = "myDependency", Availability = Availability.Limited };
 
             services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status });

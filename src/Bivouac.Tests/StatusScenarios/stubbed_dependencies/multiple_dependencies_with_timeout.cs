@@ -14,7 +14,7 @@
          public readonly HttpResponseMessage Response;
          public readonly long Duration;
 
-         public fixture()
+         public fixture() : base(ConfigureServices)
          {
             var stopwatch = Stopwatch.StartNew();
 
@@ -24,10 +24,8 @@
             Duration = stopwatch.ElapsedMilliseconds;
          }
 
-         protected override void ConfigureServicesBuilder(IServiceCollection services)
+         private static void ConfigureServices(IServiceCollection services)
          {
-            base.ConfigureServicesBuilder(services);
-
             var status1 = new Status { Name = "myDep1", Availability = Availability.Limited };
             var status2 = new Status { Name = "myDep2", Availability = Availability.Unknown };
 

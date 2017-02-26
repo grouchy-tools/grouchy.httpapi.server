@@ -12,15 +12,13 @@
       {
          public readonly HttpResponseMessage Response;
 
-         public fixture()
+         public fixture() : base(ConfigureServices)
          {
             Response = TestHost.Get("/status");
          }
 
-         protected override void ConfigureServicesBuilder(IServiceCollection services)
+         private static void ConfigureServices(IServiceCollection services)
          {
-            base.ConfigureServicesBuilder(services);
-
             var status1 = new Status { Name = "myDep1", Availability = Availability.Limited };
             var status2 = new Status { Name = "myDep2", Availability = Availability.Unknown };
 

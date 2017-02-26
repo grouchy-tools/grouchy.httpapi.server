@@ -1,5 +1,6 @@
 namespace Bivouac.Tests.StatusScenarios
 {
+   using System;
    using Banshee;
    using Microsoft.AspNetCore.Builder;
    using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,7 @@ namespace Bivouac.Tests.StatusScenarios
       private readonly StubStatusEndpointService _statusEndpointService;
       private readonly LightweightWebApiHost _testHost;
 
-      public StatusFixture()
+      public StatusFixture(Action<IServiceCollection> configureServices = null)
       {
          _statusEndpointService = new StubStatusEndpointService();
 
@@ -21,7 +22,7 @@ namespace Bivouac.Tests.StatusScenarios
             services.AddStatusEndpointServices("test-host");
 
             services.AddSingleton<IStatusEndpointService>(_statusEndpointService);
-            ConfigureServicesBuilder(services);
+            configureServices?.Invoke(services);
          }, Configure);
       }
 
@@ -29,11 +30,7 @@ namespace Bivouac.Tests.StatusScenarios
 
       public LightweightWebApiHost TestHost => _testHost;
 
-      protected virtual void ConfigureServicesBuilder(IServiceCollection services)
-      {
-      }
-
-      private void Configure(IApplicationBuilder app)
+      private static void Configure(IApplicationBuilder app)
       {
          app.UseStatusEndpointMiddleware();
 
