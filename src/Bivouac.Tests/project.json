@@ -14,7 +14,7 @@
       "Bivouac": { "target": "project" },
       "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0",
       "Shouldly": "2.8.2",
-      "Burble.Abstractions": "0.0.13-preview0024"
+      "Burble.Abstractions": "0.0.13"
    },
 
    "frameworks": {
