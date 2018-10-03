@@ -3,8 +3,8 @@ properties {
    $BasePath = Resolve-Path ..
    $SrcPath = "$BasePath\src"
    $ArtifactsPath = "$BasePath\artifacts"
-   $ProjectJsonPath = "$SrcPath\Bivouac\project.json"
-   $TestProjectJsonPath = "$SrcPath\Bivouac.Tests\project.json"
+   $ProjectPath = "$SrcPath\Bivouac\Bivouac.csproj"
+   $TestProjectPath = "$SrcPath\Bivouac.Tests\Bivouac.Tests.csproj"
    $Configuration = if ($Configuration) {$Configuration} else { "Debug" }
 }
 
@@ -21,29 +21,29 @@ task Clean {
 
 task Build {
    exec { dotnet --version }
-   exec { dotnet restore $ProjectJsonPath }
+   exec { dotnet restore $ProjectPath }
 
    if ($VersionSuffix -eq $null -or $VersionSuffix -eq "") {
-      exec { dotnet build $ProjectJsonPath -c $Configuration -f netstandard1.6 --no-incremental }
-      #exec { dotnet build $ProjectJsonPath -c $Configuration -f net451 --no-incremental }
+      exec { dotnet build $ProjectPath -c $Configuration -f netstandard2.0 --no-incremental }
+      #exec { dotnet build $ProjectPath -c $Configuration -f net451 --no-incremental }
    }
    else {
-      exec { dotnet build $ProjectJsonPath -c $Configuration -f netstandard1.6 --no-incremental --version-suffix $VersionSuffix }
-      #exec { dotnet build $ProjectJsonPath -c $Configuration -f net451 --no-incremental --version-suffix $VersionSuffix }
+      exec { dotnet build $ProjectPath -c $Configuration -f netstandard2.0 --no-incremental --version-suffix $VersionSuffix }
+      #exec { dotnet build $ProjectPath -c $Configuration -f net451 --no-incremental --version-suffix $VersionSuffix }
    }
 }
 
 task Test -depends Build {
-   exec { dotnet restore $TestProjectJsonPath }
-   exec { dotnet test $TestProjectJsonPath -c $Configuration -f netcoreapp1.0 }
-   #exec { dotnet test $TestProjectJsonPath -c $Configuration -f net451 }
+   exec { dotnet restore $TestProjectPath }
+   exec { dotnet test $TestProjectPath -c $Configuration -f netcoreapp2.0 }
+   #exec { dotnet test $TestProjectPath -c $Configuration -f net451 }
 }
 
 task Package -depends Build {
    if ($VersionSuffix -eq $null -or $VersionSuffix -eq "") {
-      exec { dotnet pack $ProjectJsonPath -c $Configuration -o $ArtifactsPath }
+      exec { dotnet pack $ProjectPath -c $Configuration -o $ArtifactsPath }
    }
    else {
-      exec { dotnet pack $ProjectJsonPath -c $Configuration -o $ArtifactsPath --version-suffix $VersionSuffix }
+      exec { dotnet pack $ProjectPath -c $Configuration -o $ArtifactsPath --version-suffix $VersionSuffix }
    }
 }

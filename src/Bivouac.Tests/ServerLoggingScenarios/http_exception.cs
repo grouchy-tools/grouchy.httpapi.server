@@ -1,93 +1,84 @@
-﻿namespace Bivouac.Tests.ServerLoggingScenarios
+﻿using System.Net.Http;
+using Bivouac.Events;
+using NUnit.Framework;
+using Shouldly;
+
+namespace Bivouac.Tests.ServerLoggingScenarios
 {
-   using System.Net.Http;
-   using Bivouac.Events;
-   using Xunit;
-   using Shouldly;
-
-   public class http_found_exception : IClassFixture<http_found_exception.fixture>
+   public class http_found_exception : ScenarioBase
    {
-      public class fixture : ServerLoggingFixture
-      {
-         public readonly HttpResponseMessage Response;
+      private HttpResponseMessage _response;
 
-         public fixture()
-         {
-            Response = TestHost.Get("/http-exception");
-         }
+      [OneTimeSetUp]
+      public void setup_scenario()
+      {         
+         _response = TestHost.Get("/http-exception");
       }
 
-      private readonly fixture _fixture;
-
-      public http_found_exception(fixture fixture)
-      {
-         _fixture = fixture;
-      }
-
-      [Fact]
+      [Test]
       public void should_return_status_code()
       {
-         Assert.Equal(406, (int)_fixture.Response.StatusCode);
+         Assert.AreEqual(406, (int)_response.StatusCode);
       }
 
-      [Fact]
+      [Test]
       public void should_return_content_not_found()
       {
-         var content = _fixture.Response.Content.ReadAsStringAsync().Result;
+         var content = _response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal(content, "Some http exception");
+         Assert.AreEqual(content, "Some http exception");
       }
 
-      [Fact]
+      [Test]
       public void should_return_content_type_text_plain()
       {
-         var contentType = _fixture.Response.Content.Headers.ContentType.MediaType;
+         var contentType = _response.Content.Headers.ContentType.MediaType;
 
-         Assert.Equal(contentType, "text/plain");
+         Assert.AreEqual(contentType, "text/plain");
       }
 
-      [Fact]
+      [Test]
       public void should_log_two_server_events()
       {
-         Assert.Equal(2, _fixture.StubHttpServerEventCallback.Events.Count);
+         Assert.AreEqual(2, StubHttpServerEventCallback.Events.Count);
       }
       
-      [Fact]
+      [Test]
       public void should_log_server_request()
       {
-         _fixture.StubHttpServerEventCallback.Events[0].ShouldBeOfType<HttpServerRequest>();
+         StubHttpServerEventCallback.Events[0].ShouldBeOfType<HttpServerRequest>();
       }
 
-      [Fact]
+      [Test]
       public void should_log_server_request_with_content()
       {
-         var @event = (HttpServerRequest)_fixture.StubHttpServerEventCallback.Events[0];
+         var @event = (HttpServerRequest)StubHttpServerEventCallback.Events[0];
 
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/http-exception");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
-         @event.Tags.ShouldContainKeyAndValue("version", _fixture.Version);
+         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("version", Version);
       }
 
-      [Fact]
+      [Test]
       public void should_log_server_response()
       {
-         _fixture.StubHttpServerEventCallback.Events[1].ShouldBeOfType<HttpServerResponse>();
+         StubHttpServerEventCallback.Events[1].ShouldBeOfType<HttpServerResponse>();
       }
 
-      [Fact]
+      [Test]
       public void should_log_server_response_with_content()
       {
-         var @event = (HttpServerResponse)_fixture.StubHttpServerEventCallback.Events[1];
+         var @event = (HttpServerResponse)StubHttpServerEventCallback.Events[1];
 
          @event.EventType.ShouldBe("HttpServerResponse");
          @event.Uri.ShouldBe("/http-exception");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
-         @event.Tags.ShouldContainKeyAndValue("version", _fixture.Version);
+         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("version", Version);
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(406);
       }

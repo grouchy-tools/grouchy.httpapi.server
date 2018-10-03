@@ -1,18 +1,19 @@
-﻿namespace Bivouac.Tests.ClientLoggingScenarios
-{
-   using System;
-   using System.Net.Http;
-   using System.Runtime.InteropServices;
-   using Xunit;
-   using Shouldly;
-   using Burble.Abstractions;
-   using Newtonsoft.Json.Linq;
+﻿using System;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using NUnit.Framework;
+using Shouldly;
+using Burble.Abstractions;
+using Newtonsoft.Json.Linq;
 
+namespace Bivouac.Tests.ClientLoggingScenarios
+{
    public class service_version_is_specified
    {
-      private readonly JObject _idsFromHeaders;
+      private JObject _idsFromHeaders;
 
-      public service_version_is_specified()
+      [OneTimeSetUp]
+      public void setup_scenario()
       {
          var correlationIdGetter = new StubCorrelationIdGetter();
          var guidGenerator = new StubGuidGenerator(Guid.NewGuid());
@@ -30,7 +31,7 @@
          }
       }
       
-      [Fact]
+      [Test]
       public void user_agent_is_added_to_the_headers()
       {
          _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service/1.0-preview ({RuntimeInformation.OSDescription.Trim()})");

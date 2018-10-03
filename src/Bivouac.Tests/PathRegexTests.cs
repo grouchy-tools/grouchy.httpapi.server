@@ -1,31 +1,32 @@
-﻿namespace Bivouac.Tests
-{
-   using Xunit;
+﻿using NUnit.Framework;
+using Shouldly;
 
+namespace Bivouac.Tests
+{
    public class PathRegexTests
    {
-      [Fact]
+      [Test]
       public void single_segment()
       {
          var result = "/api".ToRegex();
-
-         Assert.Equal(result, @"\/api(\/.*)?");
+         
+         Assert.AreEqual(result, @"\/api(\/.*)?");
       }
 
-      [Fact]
+      [Test]
       public void includes_token()
       {
          var result = "/api/get/{date}".ToRegex();
 
-         Assert.Equal(result, @"\/api\/get\/(?<date>[^/]*)(\/.*)?");
+         Assert.AreEqual(result, @"\/api\/get\/(?<date>[^/]*)(\/.*)?");
       }
 
-      [Fact]
+      [Test]
       public void suffix_following_token()
       {
          var result = "/api/get/{date}/id".ToRegex();
 
-         Assert.Equal(result, @"\/api\/get\/(?<date>[^/]*)\/id(\/.*)?");
+         Assert.AreEqual(result, @"\/api\/get\/(?<date>[^/]*)\/id(\/.*)?");
       }
    }
 }

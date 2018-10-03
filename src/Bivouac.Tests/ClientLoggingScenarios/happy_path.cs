@@ -1,25 +1,26 @@
-﻿namespace Bivouac.Tests.ClientLoggingScenarios
-{
-   using System;
-   using System.Linq;
-   using System.Net.Http;
-   using System.Runtime.InteropServices;
-   using Xunit;
-   using Shouldly;
-   using Bivouac.Events;
-   using Burble.Abstractions;
-   using Newtonsoft.Json.Linq;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using Shouldly;
+using Bivouac.Events;
+using Burble.Abstractions;
+using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 
+namespace Bivouac.Tests.ClientLoggingScenarios
+{
    public class happy_path
    {
-      private readonly StubHttpClientEventCallback _callback;
-      private readonly string _currentRequestId;
-      private readonly string _newRequestId;
-      private readonly string _correlationId;
-      private readonly string _version;
-      private readonly JObject _idsFromHeaders;
+      private StubHttpClientEventCallback _callback;
+      private string _currentRequestId;
+      private string _newRequestId;
+      private string _correlationId;
+      private string _version;
+      private JObject _idsFromHeaders;
 
-      public happy_path()
+      [OneTimeSetUp]
+      public void setup_scenario()
       {
          _currentRequestId = Guid.NewGuid().ToString();
          _newRequestId = Guid.NewGuid().ToString();
@@ -46,7 +47,7 @@
          }
       }
       
-      [Fact]
+      [Test]
       public void should_log_event_with_tags()
       {
          var lastRequest = _callback.Events.Single();
@@ -57,7 +58,7 @@
          lastRequest.Tags.ShouldContainKeyAndValue("version", _version);
       }
 
-      [Fact]
+      [Test]
       public void new_request_id_is_added_to_the_headers()
       {
          _idsFromHeaders["requestId"].Value<string>().ShouldBe(_newRequestId);
@@ -65,13 +66,13 @@
 
       // origin-request-id not needed in headers, only the events
 
-      [Fact]
+      [Test]
       public void correlation_id_is_added_to_the_headers()
       {
          _idsFromHeaders["correlationId"].Value<string>().ShouldBe(_correlationId);
       }
 
-      [Fact]
+      [Test]
       public void user_agent_is_added_to_the_headers()
       {
          _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service/1.0.1-client ({RuntimeInformation.OSDescription.Trim()})");

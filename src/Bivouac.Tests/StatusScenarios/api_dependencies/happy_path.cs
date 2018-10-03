@@ -1,51 +1,42 @@
-﻿namespace Bivouac.Tests.StatusScenarios.api_dependencies
+﻿using System.Threading;
+using NUnit.Framework;
+using Bivouac.Model;
+using Bivouac.Services;
+
+namespace Bivouac.Tests.StatusScenarios.api_dependencies
 {
-   using System.Threading;
-   using Xunit;
-   using Bivouac.Model;
-   using Bivouac.Services;
-
-   public class happy_path : IClassFixture<happy_path.fixture>
+   public class happy_path : ScenarioBase
    {
-      public class fixture
-      {
-         public readonly Status Result;
+      private Status _result;
 
-         public fixture()
+      [OneTimeSetUp]
+      public void setup_scenario()
+      {
+         var httpClient = new StubHttpClient<Status>
          {
-            var httpClient = new StubHttpClient<Status>
-            {
-               Response = new Status { Name = "downstreamApiName", Availability = Availability.Available }
-            };
-            var testSubject = new ApiStatusEndpointDependency("dependencyName", httpClient);
+            Response = new Status { Name = "downstreamApiName", Availability = Availability.Available }
+         };
+         var testSubject = new ApiStatusEndpointDependency("dependencyName", httpClient);
 
-            Result = testSubject.GetStatus(CancellationToken.None).Result;
-         }
+         _result = testSubject.GetStatus(CancellationToken.None).Result;
       }
 
-      private readonly fixture _fixture;
-
-      public happy_path(fixture fixture)
-      {
-         _fixture = fixture;
-      }
-
-      [Fact]
+      [Test]
       public void should_return_status_object()
       {
-         Assert.IsType<Status>(_fixture.Result);
+         Assert.IsInstanceOf<Status>(_result);
       }
 
-      [Fact]
+      [Test]
       public void should_return_name()
       {
-         Assert.Equal("downstreamApiName", _fixture.Result.Name);
+         Assert.AreEqual("downstreamApiName", _result.Name);
       }
 
-      [Fact]
+      [Test]
       public void should_return_availability()
       {
-         Assert.Equal(Availability.Available, _fixture.Result.Availability);
+         Assert.AreEqual(Availability.Available, _result.Availability);
       }
    }
 }

@@ -1,84 +1,74 @@
-﻿namespace Bivouac.Tests.ServerLoggingScenarios
+﻿using System.Net.Http;
+using Bivouac.Events;
+using NUnit.Framework;
+using Shouldly;
+
+namespace Bivouac.Tests.ServerLoggingScenarios
 {
-   using System.Net.Http;
-   using Bivouac.Events;
-   using Newtonsoft.Json;
-   using Xunit;
-   using Shouldly;
-
-   public class happy_path_post : IClassFixture<happy_path_post.fixture>
+   public class happy_path_post : ScenarioBase
    {
-      public class fixture : ServerLoggingFixture
-      {
-         public readonly HttpResponseMessage Response;
+      private HttpResponseMessage _response;
 
-         public fixture()
-         {
-            Response = TestHost.Post("/happy-path", "{}");
-         }
+      [OneTimeSetUp]
+      public void setup_scenario()
+      {         
+         _response = TestHost.Post("/happy-path", "{}");
       }
 
-      private readonly fixture _fixture;
-
-      public happy_path_post(fixture fixture)
-      {
-         _fixture = fixture;
-      }
-
-      [Fact]
+      [Test]
       public void should_return_status_code_from_next_middleware()
       {
-         Assert.Equal(200, (int)_fixture.Response.StatusCode);
+         Assert.AreEqual(200, (int)_response.StatusCode);
       }
 
-      [Fact]
+      [Test]
       public void should_return_content_from_next_middleware()
       {
-         var content = _fixture.Response.Content.ReadAsStringAsync().Result;
+         var content = _response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal(content, "Complete Post!");
+         Assert.AreEqual(content, "Complete Post!");
       }
 
-      [Fact]
+      [Test]
       public void should_log_two_server_events()
       {
-         Assert.Equal(2, _fixture.StubHttpServerEventCallback.Events.Count);
+         Assert.AreEqual(2, StubHttpServerEventCallback.Events.Count);
       }
 
-      [Fact]
+      [Test]
       public void should_log_server_request()
       {
-         _fixture.StubHttpServerEventCallback.Events[0].ShouldBeOfType<HttpServerRequest>();
+         StubHttpServerEventCallback.Events[0].ShouldBeOfType<HttpServerRequest>();
       }
 
-      [Fact]
+      [Test]
       public void should_log_server_request_with_content()
       {
-         var @event = _fixture.StubHttpServerEventCallback.Events[0];
+         var @event = StubHttpServerEventCallback.Events[0];
 
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/happy-path");
          @event.Method.ShouldBe("POST");
-         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId);
       }
 
-      [Fact]
+      [Test]
       public void should_log_server_response()
       {
-         _fixture.StubHttpServerEventCallback.Events[1].ShouldBeOfType<HttpServerResponse>();
+         StubHttpServerEventCallback.Events[1].ShouldBeOfType<HttpServerResponse>();
       }
 
-      [Fact]
+      [Test]
       public void should_log_server_response_with_content()
       {
-         var @event = (HttpServerResponse)_fixture.StubHttpServerEventCallback.Events[1];
+         var @event = (HttpServerResponse)StubHttpServerEventCallback.Events[1];
 
          @event.EventType.ShouldBe("HttpServerResponse");
          @event.Uri.ShouldBe("/happy-path");
          @event.Method.ShouldBe("POST");
-         @event.Tags.ShouldContainKeyAndValue("request-id", _fixture.RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", _fixture.CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId);
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(200);
       }

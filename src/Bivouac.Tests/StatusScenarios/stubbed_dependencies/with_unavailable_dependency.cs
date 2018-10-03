@@ -1,51 +1,42 @@
-﻿namespace Bivouac.Tests.StatusScenarios
+﻿using System.Net.Http;
+using Bivouac.Abstractions;
+using Bivouac.Model;
+using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
+
+namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 {
-   using System.Net.Http;
-   using Xunit;
-   using Bivouac.Abstractions;
-   using Bivouac.Model;
-   using Microsoft.Extensions.DependencyInjection;
-
-   public class with_unavailable_dependency : IClassFixture<with_unavailable_dependency.fixture>
+   public class with_unavailable_dependency : ScenarioBase
    {
-      public class fixture : StatusFixture
+      private HttpResponseMessage _response;
+
+      [OneTimeSetUp]
+      public void setup_scenario()
       {
-         public readonly HttpResponseMessage Response;
+         StubStatusEndpointService.Name = "myName";
 
-         public fixture() : base(ConfigureServices)
-         {
-            StubStatusEndpointService.Name = "myName";
-
-            Response = TestHost.Get("/status");
-         }
-
-         private static void ConfigureServices(IServiceCollection services)
-         {
-            var status = new Status { Name = "myDependency", Availability = Availability.Unavailable };
-
-            services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status });
-         }
+         _response = TestHost.Get("/status");
       }
 
-      private readonly fixture _fixture;
-
-      public with_unavailable_dependency(fixture fixture)
+      protected override void ConfigureServices(IServiceCollection services)
       {
-         _fixture = fixture;
+         var status = new Status { Name = "myDependency", Availability = Availability.Unavailable };
+
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status });
       }
 
-      [Fact]
+      [Test]
       public void should_return_status_code_okay()
       {
-         Assert.Equal(200, (int)_fixture.Response.StatusCode);
+         Assert.AreEqual(200, (int)_response.StatusCode);
       }
 
-      [Fact]
+      [Test]
       public void should_return_exact_json_content()
       {
-         var content = _fixture.Response.Content.ReadAsStringAsync().Result;
+         var content = _response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal("{\"name\":\"myName\",\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDependency\",\"availability\":\"Unavailable\"}]}", content);
+         Assert.AreEqual("{\"name\":\"myName\",\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDependency\",\"availability\":\"Unavailable\"}]}", content);
       }
    }
 }

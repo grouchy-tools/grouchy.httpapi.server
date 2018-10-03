@@ -1,21 +1,12 @@
-﻿namespace Bivouac.Tests.StatusScenarios
+﻿using System.Net;
+using System.Net.Http;
+using NUnit.Framework;
+
+namespace Bivouac.Tests.StatusScenarios
 {
-   using System.Net;
-   using System.Net.Http;
-   using Xunit;
-   //using Bivouac.Model;
-   //using Microsoft.Extensions.DependencyInjection;
-
-   public class ping : IClassFixture<ping.fixture>
+   public class ping : ScenarioBase
    {
-      public class fixture : StatusFixture
-      {
-         public readonly HttpResponseMessage Response;
-
-         public fixture()
-         {
-            Response = TestHost.Get("/ping");
-         }
+      private HttpResponseMessage _response;
 
          //protected override void ConfigureServicesBuilder(IServiceCollection services)
          //{
@@ -25,13 +16,11 @@
 
          //   services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status });
          //}
-      }
 
-      private readonly fixture _fixture;
-
-      public ping(fixture fixture)
+      [OneTimeSetUp]
+      public void setup_scenario()
       {
-         _fixture = fixture;
+         _response = TestHost.Get("/ping");
       }
       //public ping()
       //{
@@ -45,18 +34,18 @@
       //   _response = testHost.Get("/ping");
       //}
 
-      [Fact]
+      [Test]
       public void should_return_status_code_200()
       {
-         Assert.Equal(_fixture.Response.StatusCode, HttpStatusCode.OK);
+         Assert.AreEqual(_response.StatusCode, HttpStatusCode.OK);
       }
 
-      [Fact]
+      [Test]
       public void should_return_content_pong()
       {
-         var content = _fixture.Response.Content.ReadAsStringAsync().Result;
+         var content = _response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal("Pong!", content);
+         Assert.AreEqual("Pong!", content);
       }
    }
 }

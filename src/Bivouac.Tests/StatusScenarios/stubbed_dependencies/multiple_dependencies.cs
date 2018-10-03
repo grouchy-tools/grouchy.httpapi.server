@@ -1,51 +1,42 @@
-﻿namespace Bivouac.Tests.StatusScenarios
+﻿using System.Net.Http;
+using Bivouac.Abstractions;
+using Bivouac.Model;
+using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
+
+namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 {
-   using System.Net.Http;
-   using Xunit;
-   using Bivouac.Abstractions;
-   using Bivouac.Model;
-   using Microsoft.Extensions.DependencyInjection;
-
-   public class multiple_dependencies : IClassFixture<multiple_dependencies.fixture>
+   public class multiple_dependencies : ScenarioBase
    {
-      public class fixture : StatusFixture
+      private HttpResponseMessage _response;
+
+      [OneTimeSetUp]
+      public void setup_scenario()
       {
-         public readonly HttpResponseMessage Response;
-
-         public fixture() : base(ConfigureServices)
-         {
-            Response = TestHost.Get("/status");
-         }
-
-         private static void ConfigureServices(IServiceCollection services)
-         {
-            var status1 = new Status { Name = "myDep1", Availability = Availability.Limited };
-            var status2 = new Status { Name = "myDep2", Availability = Availability.Unknown };
-
-            services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status1 });
-            services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status2 });
-         }
+         _response = TestHost.Get("/status");
       }
 
-      private readonly fixture _fixture;
-
-      public multiple_dependencies(fixture fixture)
+      protected override void ConfigureServices(IServiceCollection services)
       {
-         _fixture = fixture;
+         var status1 = new Status { Name = "myDep1", Availability = Availability.Limited };
+         var status2 = new Status { Name = "myDep2", Availability = Availability.Unknown };
+
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status1 });
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status2 });
       }
 
-      [Fact]
+      [Test]
       public void should_return_status_code_okay()
       {
-         Assert.Equal(200, (int)_fixture.Response.StatusCode);
+         Assert.AreEqual(200, (int)_response.StatusCode);
       }
 
-      [Fact]
+      [Test]
       public void should_return_exact_json_content()
       {
-         var content = _fixture.Response.Content.ReadAsStringAsync().Result;
+         var content = _response.Content.ReadAsStringAsync().Result;
 
-         Assert.Equal("{\"name\":null,\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Limited\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
+         Assert.AreEqual("{\"name\":null,\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Limited\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
       }
    }
 }

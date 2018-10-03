@@ -1,60 +1,51 @@
+using System;
+using System.Threading;
+using NUnit.Framework;
+using Bivouac.Model;
+using Bivouac.Services;
+
 namespace Bivouac.Tests.StatusScenarios.api_dependencies
 {
-   using System;
-   using System.Threading;
-   using Xunit;
-   using Bivouac.Model;
-   using Bivouac.Services;
-
-   public class request_is_cancelled : IClassFixture<request_is_cancelled.fixture>
+   public class request_is_cancelled : ScenarioBase
    {
-      public class fixture
-      {
-         public readonly Status Result;
+      private Status _result;
 
-         public fixture()
+      [OneTimeSetUp]
+      public void setup_scenario()
+      {
+         var httpClient = new StubHttpClient<Status>
          {
-            var httpClient = new StubHttpClient<Status>
-            {
-               BaseAddress = new Uri("http://stubbaseaddress"),
-               Latency = TimeSpan.FromSeconds(3)
-            };
+            BaseAddress = new Uri("http://stubbaseaddress"),
+            Latency = TimeSpan.FromSeconds(3)
+         };
 
-            var testSubject = new ApiStatusEndpointDependency("expectedDependencyName", httpClient);
+         var testSubject = new ApiStatusEndpointDependency("expectedDependencyName", httpClient);
 
-            Result = testSubject.GetStatus(new CancellationTokenSource(20).Token).Result;
-         }
+         _result = testSubject.GetStatus(new CancellationTokenSource(20).Token).Result;
       }
 
-      private readonly fixture _fixture;
-
-      public request_is_cancelled(fixture fixture)
-      {
-         _fixture = fixture;
-      }
-
-      [Fact]
+      [Test]
       public void should_return_status_object()
       {
-         Assert.IsType<Status>(_fixture.Result);
+         Assert.IsInstanceOf<Status>(_result);
       }
 
-      [Fact]
+      [Test]
       public void should_return_name()
       {
-         Assert.Equal("expectedDependencyName", _fixture.Result.Name);
+         Assert.AreEqual("expectedDependencyName", _result.Name);
       }
 
-      [Fact]
+      [Test]
       public void should_return_unknown()
       {
-         Assert.Equal(Availability.Unknown, _fixture.Result.Availability);
+         Assert.AreEqual(Availability.Unknown, _result.Availability);
       }
 
-      [Fact]
+      [Test]
       public void should_return_host()
       {
-         Assert.Equal("http://stubbaseaddress", _fixture.Result.Host);
+         Assert.AreEqual("http://stubbaseaddress", _result.Host);
       }
    }
 }
