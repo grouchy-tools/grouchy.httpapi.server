@@ -21,6 +21,7 @@ namespace Bivouac.Tests
       public override HttpResponse Response { get; }
       public override ConnectionInfo Connection { get; }
       public override WebSocketManager WebSockets { get; }
+      [Obsolete]
       public override AuthenticationManager Authentication { get; }
       public override ClaimsPrincipal User { get; set; }
       public override IDictionary<object, object> Items { get; set; }

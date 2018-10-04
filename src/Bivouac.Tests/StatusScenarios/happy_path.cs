@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using Newtonsoft.Json;
-using NUnit.Framework;
 using Bivouac.Model;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Shouldly;
 
