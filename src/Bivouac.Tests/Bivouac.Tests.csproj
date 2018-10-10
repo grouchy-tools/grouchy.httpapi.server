@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsPackable>false</IsPackable>
@@ -13,7 +13,7 @@
     <PackageReference Include="Shouldly" Version="3.0.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
     <PackageReference Include="Banshee" Version="0.0.3-preview0028" />
-    <PackageReference Include="Burble.Abstractions" Version="0.0.16-preview0036" />
+    <PackageReference Include="Burble.Abstractions" Version="0.0.16-preview0037" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />

@@ -1,9 +1,9 @@
-﻿namespace Bivouac.Services
-{
-   using System.Reflection;
-   using Bivouac.Abstractions;
+﻿using System.Reflection;
+using Bivouac.Abstractions;
 
-   public class AssemblyVersionGetter : IGetAssemblyVersion
+namespace Bivouac.Services
+{
+   public class ServiceVersionGetter : IGetServiceVersion
    {
       public string Get()
       {

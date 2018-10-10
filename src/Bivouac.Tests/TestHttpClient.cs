@@ -1,30 +1,34 @@
-﻿namespace Bivouac.Tests
-{
-   using System;
-   using System.Collections.Generic;
-   using System.Net.Http;
-   using System.Threading;
-   using System.Threading.Tasks;
-   using Burble.Abstractions;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Burble.Abstractions;
 
+namespace Bivouac.Tests
+{
    public class TestHttpClient : IHttpClient
    {
       private readonly HttpClient _httpClient;
-      private readonly IHttpClientEventCallback _callback;
+      private readonly IHttpClientEventCallback[] _callbacks;
 
       public TestHttpClient(
          HttpClient httpClient,
-         IHttpClientEventCallback callback)
+         params IHttpClientEventCallback[] callbacks)
       {
          _httpClient = httpClient;
-         _callback = callback;
+         _callbacks = callbacks;
       }
 
       public Uri BaseAddress => _httpClient.BaseAddress;
 
       public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
       {
-         _callback?.Invoke(new Event { Request = request });
+         var @event = new Event { Request = request };
+         foreach (var callback in _callbacks)
+         {
+            callback.Invoke(@event);
+         }
          return _httpClient.SendAsync(request, cancellationToken);
       }
 

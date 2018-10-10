@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Bivouac.Abstractions;
+using Bivouac.EventCallbacks;
 using Bivouac.Events;
 using Bivouac.Exceptions;
+using Bivouac.Extensions;
 using Bivouac.Middleware;
 using NUnit.Framework;
 
@@ -24,7 +26,7 @@ namespace Bivouac.Tests.ServerLoggingScenarios
 
       public StubCorrelationIdGetter StubCorrelationIdGetter { get; private set; }
 
-      public StubAssemblyVersionGetter StubAssemblyVersionGetter { get; private set; }
+      public StubServiceVersionGetter StubServiceVersionGetter { get; private set; }
 
       public StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
 
@@ -38,22 +40,24 @@ namespace Bivouac.Tests.ServerLoggingScenarios
          Version = "1.2.3-server";
          StubRequestIdGetter = new StubRequestIdGetter { RequestId = RequestId };
          StubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = CorrelationId };
-         StubAssemblyVersionGetter = new StubAssemblyVersionGetter { Version = Version };
+         StubServiceVersionGetter = new StubServiceVersionGetter { Version = Version };
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubRequestIdGetter, StubCorrelationIdGetter, StubAssemblyVersionGetter, StubHttpServerEventCallback);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubRequestIdGetter, StubCorrelationIdGetter, StubServiceVersionGetter);
          TestHost = new LightweightWebApiHost(services =>
          {
-            services.AddServerLoggingServices();
+            services.AddDefaultServices("serviceName");
 
+            services.AddSingleton<IGetServiceVersion>(StubServiceVersionGetter);
             services.AddSingleton<IGetRequestId>(StubRequestIdGetter);
             services.AddSingleton<IGetCorrelationId>(StubCorrelationIdGetter);
             services.AddSingleton<IHttpServerEventCallback>(identifyingCallback);
+            services.AddSingleton<IHttpServerEventCallback>(StubHttpServerEventCallback);
          }, Configure);
       }
 
       private void Configure(IApplicationBuilder app)
       {
-         app.UseServerLoggingMiddleware();
+         app.UseDefaultMiddleware();
 
          app.Map("/happy-path", "GET", async context =>
          {

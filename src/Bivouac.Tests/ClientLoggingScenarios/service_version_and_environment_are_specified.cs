@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using Bivouac.Extensions;
+using Burble.Abstractions.Extensions;
 using NUnit.Framework;
 using Shouldly;
-using Burble.Abstractions;
 using Newtonsoft.Json.Linq;
 
 namespace Bivouac.Tests.ClientLoggingScenarios
@@ -17,13 +18,14 @@ namespace Bivouac.Tests.ClientLoggingScenarios
       {
          var correlationIdGetter = new StubCorrelationIdGetter();
          var guidGenerator = new StubGuidGenerator(Guid.NewGuid());
-         var assemblyVersionGetter = new StubAssemblyVersionGetter { Version = "1.1.2" };
+         var serviceNameGetter = new StubServiceNameGetter { Name = "my-service" };
+         var assemblyVersionGetter = new StubServiceVersionGetter { Version = "1.1.2" };
 
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
-            var httpClient = new TestHttpClient(baseHttpClient, null)
-               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, assemblyVersionGetter, "my-service", "Staging");
+            var httpClient = new TestHttpClient(baseHttpClient)
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, serviceNameGetter, assemblyVersionGetter, environment: "Staging");
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;

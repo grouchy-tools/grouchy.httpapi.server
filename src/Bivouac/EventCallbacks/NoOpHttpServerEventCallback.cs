@@ -1,7 +1,7 @@
-﻿namespace Bivouac.Events
-{
-   using Bivouac.Abstractions;
+﻿using Bivouac.Abstractions;
 
+namespace Bivouac.EventCallbacks
+{
    public class NoOpHttpServerEventCallback : IHttpServerEventCallback
    {
       public void Invoke(IHttpServerEvent @event)

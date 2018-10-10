@@ -1,32 +1,32 @@
-﻿namespace Bivouac.Middleware
-{
-   using System;
-   using System.Diagnostics;
-   using System.Net;
-   using System.Threading.Tasks;
-   using Bivouac.Abstractions;
-   using Bivouac.Events;
-   using Bivouac.Exceptions;
-   using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Threading.Tasks;
+using Bivouac.Abstractions;
+using Bivouac.Events;
+using Bivouac.Exceptions;
+using Bivouac.Extensions;
+using Microsoft.AspNetCore.Http;
 
+namespace Bivouac.Middleware
+{
    public class ServerLoggingMiddleware
    {
       private readonly RequestDelegate _next;
 
       public ServerLoggingMiddleware(RequestDelegate next)
       {
-         if (next == null) throw new ArgumentNullException(nameof(next));
-
-         _next = next;
+         _next = next ?? throw new ArgumentNullException(nameof(next));
       }
 
-      public async Task Invoke(HttpContext context, IHttpServerEventCallback callback)
+      public async Task Invoke(HttpContext context, IEnumerable<IHttpServerEventCallback> callbacks)
       {
          if (context == null) throw new ArgumentNullException(nameof(context));
-         if (callback == null) throw new ArgumentNullException(nameof(callback));
+         if (callbacks == null) throw new ArgumentNullException(nameof(callbacks));
 
          var stopwatch = Stopwatch.StartNew();
-         EventCallback(callback, () => HttpServerRequest.Create(context));
+         callbacks.Invoke(() => HttpServerRequest.Create(context));
 
          try
          {
@@ -40,11 +40,11 @@
          {
             await WriteResponse(context, HttpStatusCode.InternalServerError, "FAIL!");
 
-            EventCallback(callback, () => HttpServerException.Create(context, e));
+            callbacks.Invoke(() => HttpServerException.Create(context, e));
          }
 
          stopwatch.Stop();
-         EventCallback(callback, () => HttpServerResponse.Create(context, stopwatch.ElapsedMilliseconds));
+         callbacks.Invoke(() => HttpServerResponse.Create(context, stopwatch.ElapsedMilliseconds));
       }
 
       private static async Task WriteResponse(HttpContext context, HttpStatusCode statusCode, string plainText)
@@ -52,19 +52,6 @@
          context.Response.StatusCode = (int)statusCode;
          context.Response.ContentType = "text/plain";
          await context.Response.WriteAsync(plainText);
-      }
-
-      private static void EventCallback<TEvent>(IHttpServerEventCallback callback, Func<TEvent> eventFactory) where TEvent : IHttpServerEvent
-      {
-         try
-         {
-            var @event = eventFactory();
-            callback.Invoke(@event);
-         }
-         catch
-         {
-            // Swallow exceptions
-         }
       }
    }
 }

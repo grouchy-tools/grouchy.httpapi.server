@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using Bivouac.EventCallbacks;
 using Shouldly;
 using Bivouac.Events;
-using Burble.Abstractions;
+using Bivouac.Extensions;
+using Burble.Abstractions.Extensions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
@@ -29,17 +31,18 @@ namespace Bivouac.Tests.ClientLoggingScenarios
 
          var requestIdGetter = new StubRequestIdGetter { RequestId = _currentRequestId };
          var correlationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
-         var assemblyVersionGetter = new StubAssemblyVersionGetter { Version = _version };
+         var serviceNameGetter = new StubServiceNameGetter { Name = "my-service" };
+         var assemblyVersionGetter = new StubServiceVersionGetter { Version = _version };
          var guidGenerator = new StubGuidGenerator(Guid.Parse(_newRequestId));
 
          _callback = new StubHttpClientEventCallback();
-         var identifyingCallback = new IdentifyingHttpClientEventCallback(requestIdGetter, correlationIdGetter, assemblyVersionGetter, _callback);
+         var identifyingCallback = new IdentifyingHttpClientEventCallback(requestIdGetter, correlationIdGetter, assemblyVersionGetter);
 
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
-            var httpClient = new TestHttpClient(baseHttpClient, identifyingCallback)
-               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, assemblyVersionGetter, "my-service");
+            var httpClient = new TestHttpClient(baseHttpClient, identifyingCallback, _callback)
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, serviceNameGetter, assemblyVersionGetter);
 
             var response = httpClient.GetAsync("/get-ids-from-headers").Result;
             var content = response.Content.ReadAsStringAsync().Result;

@@ -1,12 +1,12 @@
+using System.Net;
+using System.Threading.Tasks;
+using Banshee;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
+
 namespace Bivouac.Tests.ClientLoggingScenarios
 {
-   using System.Net;
-   using System.Threading.Tasks;
-   using Banshee;
-   using Microsoft.AspNetCore.Http;
-   using Microsoft.Net.Http.Headers;
-   using Newtonsoft.Json;
-
    public class GetIdsFromHeadersApi : StubWebApiHost
    {
       protected override async Task Handler(HttpContext context)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using Bivouac.Extensions;
 using Microsoft.AspNetCore.Http;
 using Shouldly;
 using NUnit.Framework;

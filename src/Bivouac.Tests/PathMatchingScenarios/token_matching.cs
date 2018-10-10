@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Bivouac;
+using Bivouac.Extensions;
 using NUnit.Framework;
 
 namespace Bivouac.Tests.PathMatchingScenarios

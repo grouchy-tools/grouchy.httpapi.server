@@ -4,7 +4,7 @@ using System.Threading;
 using NUnit.Framework;
 using Bivouac.Model;
 using Bivouac.Services;
-using Burble.Abstractions;
+using Burble.Abstractions.Exceptions;
 
 namespace Bivouac.Tests.StatusScenarios.api_dependencies
 {

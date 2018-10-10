@@ -1,34 +1,25 @@
-﻿namespace Bivouac.Events
-{
-   using System;
-   using System.Collections.Generic;
-   using System.Linq;
-   using System.Net.Http;
-   using Bivouac.Abstractions;
-   using Burble.Abstractions;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
+using Bivouac.Abstractions;
+using Burble.Abstractions;
 
+namespace Bivouac.EventCallbacks
+{
    public class IdentifyingHttpClientEventCallback : IHttpClientEventCallback
    {
       private readonly IGetRequestId _requestIdGetter;
       private readonly IGetCorrelationId _correlationIdGetter;
-      private readonly IGetAssemblyVersion _assemblyVersionGetter;
-      private readonly IHttpClientEventCallback _next;
+      private readonly IGetServiceVersion _serviceVersionGetter;
 
       public IdentifyingHttpClientEventCallback(
          IGetRequestId requestIdGetter,
          IGetCorrelationId correlationIdGetter,
-         IGetAssemblyVersion assemblyVersionGetter,
-         IHttpClientEventCallback next)
+         IGetServiceVersion serviceVersionGetter)
       {
-         if (requestIdGetter == null) throw new ArgumentNullException(nameof(requestIdGetter));
-         if (correlationIdGetter == null) throw new ArgumentNullException(nameof(correlationIdGetter));
-         if (assemblyVersionGetter == null) throw new ArgumentNullException(nameof(assemblyVersionGetter));
-         if (next == null) throw new ArgumentNullException(nameof(next));
-
-         _requestIdGetter = requestIdGetter;
-         _correlationIdGetter = correlationIdGetter;
-         _assemblyVersionGetter = assemblyVersionGetter;
-         _next = next;
+         _requestIdGetter = requestIdGetter ?? throw new ArgumentNullException(nameof(requestIdGetter));
+         _correlationIdGetter = correlationIdGetter ?? throw new ArgumentNullException(nameof(correlationIdGetter));
+         _serviceVersionGetter = serviceVersionGetter ?? throw new ArgumentNullException(nameof(serviceVersionGetter));
       }
 
       public void Invoke(IHttpClientEvent @event)
@@ -36,9 +27,7 @@
          AddTag(@event, "origin-request-id", _requestIdGetter.Get);
          AddTag(@event, "correlation-id", _correlationIdGetter.Get);
          AddTag(@event, "request-id", () => GetRequestIdFromHeader(@event.Request));         
-         AddTag(@event, "version", _assemblyVersionGetter.Get);
-
-         _next.Invoke(@event);
+         AddTag(@event, "version", _serviceVersionGetter.Get);
       }
 
       private static void AddTag(IHttpClientEvent @event, string key, Func<string> valueGetter)
@@ -61,8 +50,7 @@
       {
          if (request == null) return null;
 
-         IEnumerable<string> values;
-         if (request.Headers.TryGetValues("request-id", out values))
+         if (request.Headers.TryGetValues("request-id", out var values))
          {
             return values.First();
          }

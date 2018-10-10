@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Bivouac.Abstractions;
+using Bivouac.EventCallbacks;
 using Bivouac.Events;
+using Bivouac.Extensions;
 using Bivouac.Middleware;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -32,30 +34,31 @@ namespace Bivouac.Tests.IdentifyingScenarios
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
          TestHost = new LightweightWebApiHost(services =>
          {
-            services.AddServerLoggingServices();
+            services.AddDefaultServices("theServiceName");
 
             services.AddSingleton<IGenerateGuids>(StubGuidGenerator);
-            services.AddTransient<IHttpServerEventCallback>(sp => CreateIdentifyingCallbackCallback(sp, StubHttpServerEventCallback));
+            services.AddSingleton<IHttpServerEventCallback>(CreateIdentifyingCallbackCallback);
+            services.AddSingleton<IHttpServerEventCallback>(StubHttpServerEventCallback);
          }, builder =>
          {
             Configure(builder);
          });
       }
 
-      private static IHttpServerEventCallback CreateIdentifyingCallbackCallback(IServiceProvider serviceProvider, StubHttpServerEventCallback callback)
+      private static IHttpServerEventCallback CreateIdentifyingCallbackCallback(IServiceProvider serviceProvider)
       {
          var requestIdGetter = serviceProvider.GetService<IGetRequestId>();
          var correlationIdGetter = serviceProvider.GetService<IGetCorrelationId>();
-         var assemblyVersionGetter = serviceProvider.GetService<IGetAssemblyVersion>();
+         var assemblyVersionGetter = serviceProvider.GetService<IGetServiceVersion>();
 
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, assemblyVersionGetter, callback);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, assemblyVersionGetter);
 
          return identifyingCallback;
       }
 
       private void Configure(IApplicationBuilder app)
       {
-         app.UseServerLoggingMiddleware();
+         app.UseDefaultMiddleware();
 
          app.Map("/get-ids-from-context", "GET", async context =>
          {

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Bivouac.Extensions;
+using NUnit.Framework;
 using Shouldly;
 
 namespace Bivouac.Tests

@@ -13,7 +13,7 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
       [OneTimeSetUp]
       public void setup_scenario()
       {
-         StubStatusEndpointService.Name = "myName";
+         StubServiceNameGetter.Name = "myName";
 
          _response = TestHost.Get("/status");
       }

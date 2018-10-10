@@ -15,8 +15,8 @@ namespace Bivouac.Tests.StatusScenarios
       [OneTimeSetUp]
       public void setup_scenario()
       {
-         StubStatusEndpointService.Name = "myName";
-         StubStatusEndpointService.Version = "myVersion";
+         StubServiceNameGetter.Name = "myName";
+         StubServiceVersionGetter.Version = "myVersion";
 
          _response = TestHost.Get("/status");
       }

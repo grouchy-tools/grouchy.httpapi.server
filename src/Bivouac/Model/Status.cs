@@ -1,8 +1,8 @@
-﻿namespace Bivouac.Model
-{
-   using Newtonsoft.Json;
-   using Newtonsoft.Json.Converters;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
+namespace Bivouac.Model
+{
    public class Status
    {
       public string Name { get; set; }

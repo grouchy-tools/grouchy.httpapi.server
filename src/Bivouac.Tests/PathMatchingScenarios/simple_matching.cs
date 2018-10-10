@@ -1,4 +1,5 @@
-﻿using Shouldly;
+﻿using Bivouac.Extensions;
+using Shouldly;
 using NUnit.Framework;
 
 namespace Bivouac.Tests.PathMatchingScenarios

@@ -1,35 +1,33 @@
-﻿namespace Bivouac.Middleware
-{
-   using System;
-   using System.Linq;
-   using System.Net.Http;
-   using System.Threading;
-   using System.Threading.Tasks;
-   using Bivouac.Abstractions;
-   using Bivouac.Model;
-   using Microsoft.AspNetCore.Http;
-   using Microsoft.Extensions.DependencyInjection;
-   using Newtonsoft.Json;
-   using Newtonsoft.Json.Serialization;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Bivouac.Abstractions;
+using Bivouac.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
+namespace Bivouac.Middleware
+{
    public class StatusEndpointMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly IStatusEndpointService _statusEndpointService;
+      private readonly IGetServiceName _getServiceName;
+      private readonly IGetServiceVersion _getServiceVersion;
       private readonly IStatusAvailabilityService _statusAvailabilityService;
 
       public StatusEndpointMiddleware(
          RequestDelegate next,
-         IStatusEndpointService statusEndpointService,
+         IGetServiceName getServiceName,
+         IGetServiceVersion getServiceVersion,
          IStatusAvailabilityService statusAvailabilityService)
       {
-         if (next == null) throw new ArgumentNullException(nameof(next));
-         if (statusEndpointService == null) throw new ArgumentNullException(nameof(statusEndpointService));
-         if (statusAvailabilityService == null) throw new ArgumentNullException(nameof(statusAvailabilityService));
-
-         _next = next;
-         _statusEndpointService = statusEndpointService;
-         _statusAvailabilityService = statusAvailabilityService;
+         _next = next ?? throw new ArgumentNullException(nameof(next));
+         _getServiceName = getServiceName ?? throw new ArgumentNullException(nameof(getServiceName));
+         _getServiceVersion = getServiceVersion ?? throw new ArgumentNullException(nameof(getServiceVersion));
+         _statusAvailabilityService = statusAvailabilityService ?? throw new ArgumentNullException(nameof(statusAvailabilityService));
       }
 
       public async Task Invoke(HttpContext context)
@@ -40,8 +38,8 @@
          {
             var response = new Status
             {
-               Name = _statusEndpointService.GetName(),
-               Version = _statusEndpointService.GetVersion(),
+               Name = _getServiceName.Get(),
+               Version = _getServiceVersion.Get(),
                Host = $"{context.Request.Scheme}://{context.Request.Host}"
             };
 

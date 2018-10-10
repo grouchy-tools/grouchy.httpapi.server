@@ -1,14 +1,14 @@
-namespace Bivouac.Events
-{
-   using System;
-   using System.Net.Http;
-   using System.Runtime.InteropServices;
-   using System.Threading;
-   using System.Threading.Tasks;
-   using Burble.Abstractions;
-   using Bivouac.Abstractions;
-   using Microsoft.Net.Http.Headers;
+using System;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Burble.Abstractions;
+using Bivouac.Abstractions;
+using Microsoft.Net.Http.Headers;
 
+namespace Bivouac.HttpClients
+{
    /// <summary>
    /// Add correlation-id and request-id to the request header, creating a new id if necessary
    /// </summary>
@@ -17,28 +17,23 @@ namespace Bivouac.Events
       private readonly IHttpClient _httpClient;
       private readonly IGetCorrelationId _correlationIdGetter;
       private readonly IGenerateGuids _guidGenerator;
-      private readonly IGetAssemblyVersion _assemblyVersionGetter;
+      private readonly IGetServiceVersion _serviceVersionGetter;
       private readonly string _userAgent;
 
+      // TODO: Need a better environment
       public IdentifyingHttpClient(
          IHttpClient httpClient,
          IGetCorrelationId correlationIdGetter,
          IGenerateGuids guidGenerator,
-         IGetAssemblyVersion assemblyVersionGetter,
-         string service,
+         IGetServiceName serviceNameGetter,
+         IGetServiceVersion serviceVersionGetter,
          string environment)
       {
-         if (httpClient == null) throw new ArgumentNullException(nameof(httpClient));
-         if (correlationIdGetter == null) throw new ArgumentNullException(nameof(correlationIdGetter));
-         if (guidGenerator == null) throw new ArgumentNullException(nameof(guidGenerator));
-         if (assemblyVersionGetter == null) throw new ArgumentNullException(nameof(assemblyVersionGetter));
-         if (service == null) throw new ArgumentNullException(nameof(service));
-
-         _httpClient = httpClient;
-         _correlationIdGetter = correlationIdGetter;
-         _guidGenerator = guidGenerator;
-         _assemblyVersionGetter = assemblyVersionGetter;
-         _userAgent = BuildUserAgent(service, environment);
+         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+         _correlationIdGetter = correlationIdGetter ?? throw new ArgumentNullException(nameof(correlationIdGetter));
+         _guidGenerator = guidGenerator ?? throw new ArgumentNullException(nameof(guidGenerator));
+         _serviceVersionGetter = serviceVersionGetter ?? throw new ArgumentNullException(nameof(serviceVersionGetter));
+         _userAgent = BuildUserAgent(serviceNameGetter.Get(), environment);
       }
 
       public Uri BaseAddress => _httpClient.BaseAddress;
@@ -55,7 +50,7 @@ namespace Bivouac.Events
       private string BuildUserAgent(string service, string environment)
       {
          var userAgent = service;
-         var version = _assemblyVersionGetter.Get();
+         var version = _serviceVersionGetter.Get();
 
          if (!string.IsNullOrWhiteSpace(version))
          {

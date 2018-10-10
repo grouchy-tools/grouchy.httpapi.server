@@ -1,8 +1,8 @@
-﻿namespace Bivouac.Tests.ClientLoggingScenarios
-{
-   using System.Collections.Generic;
-   using Burble.Abstractions;
+﻿using System.Collections.Generic;
+using Burble.Abstractions;
 
+namespace Bivouac.Tests
+{
    public class StubHttpClientEventCallback : IHttpClientEventCallback
    {
       public List<IHttpClientEvent> Events { get; } = new List<IHttpClientEvent>();

@@ -2,7 +2,7 @@ namespace Bivouac.Tests
 {
    using Bivouac.Abstractions;
 
-   public class StubAssemblyVersionGetter : IGetAssemblyVersion
+   public class StubServiceVersionGetter : IGetServiceVersion
    {
       public string Version { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace Bivouac.Abstractions
 {
-   public interface IGetAssemblyVersion
+   public interface IGetServiceVersion
    {
       string Get();
    }

@@ -36,8 +36,7 @@
 
       private static string GetUserAgentProperty(HttpContext context)
       {
-         StringValues userAgentHeader;
-         if (!context.Request.Headers.TryGetValue(HeaderNames.UserAgent, out userAgentHeader))
+         if (!context.Request.Headers.TryGetValue(HeaderNames.UserAgent, out var userAgentHeader))
          {
             return null;
          }

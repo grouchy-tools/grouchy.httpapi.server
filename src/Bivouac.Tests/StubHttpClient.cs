@@ -1,14 +1,14 @@
-﻿namespace Bivouac.Tests
-{
-   using System;
-   using System.Net;
-   using System.Net.Http;
-   using System.Text;
-   using System.Threading;
-   using System.Threading.Tasks;
-   using Burble.Abstractions;
-   using Newtonsoft.Json;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Burble.Abstractions;
+using Newtonsoft.Json;
 
+namespace Bivouac.Tests
+{
    public class StubHttpClient<T> : IHttpClient
    {
       public Uri BaseAddress { get; set; }
