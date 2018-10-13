@@ -9,6 +9,7 @@ using Shouldly;
 
 namespace Bivouac.Tests.EventCallbackScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class json_client_event_callback
    {
       private Uri _baseAddress;
@@ -94,6 +95,43 @@ namespace Bivouac.Tests.EventCallbackScenarios
          _logger.Logs[0].ShouldBe("{\"eventType\":\"SimpleWithField\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"http://localhost:8080/ping\",\"method\":\"POST\",\"somethingElse\":\"another\"}");
       }
 
+      [Test]
+      public void serialise_client_event_with_exception()
+      {
+         var clientRequest = new StubHttpClientEvent
+         {
+            EventType = "SimpleWithException",
+            Exception = new ExceptionWithStackTrace("the-message")
+         };
+
+         _testSubject.Invoke(clientRequest);
+
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"SimpleWithException\",\"timestamp\":\"0001-01-01T00:00:00+00:00\",\"exception\":{\"type\":\"ExceptionWithStackTrace\",\"message\":\"the-message\",\"stackTrace\":\"the-stack-trace\"}}");
+      }
+
+      [Test]
+      public void serialise_client_event_with_inner_exception()
+      {
+         var clientRequest = new StubHttpClientEvent
+         {
+            EventType = "SimpleWithNestedException",
+            Exception = new Exception("the-message", new ApplicationException("inner"))
+         };
+
+         _testSubject.Invoke(clientRequest);
+
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"SimpleWithNestedException\",\"timestamp\":\"0001-01-01T00:00:00+00:00\",\"exception\":{\"type\":\"Exception\",\"message\":\"the-message\",\"innerException\":{\"type\":\"ApplicationException\",\"message\":\"inner\"}}}");
+      }
+
+      private class ExceptionWithStackTrace : Exception
+      {
+         public ExceptionWithStackTrace(string message) : base(message)
+         {
+         }
+         
+         public override string StackTrace { get; } = "the-stack-trace";
+      }
+
       private class StubHttpClientEvent : IHttpClientEvent
       {
          public string EventType { get; set; }
@@ -109,6 +147,8 @@ namespace Bivouac.Tests.EventCallbackScenarios
          public string SomethingElse { get; set; }
          
          public IDictionary<string, object> Tags { get; set; }
+         
+         public Exception Exception { get; set; }
       }
    }
 }

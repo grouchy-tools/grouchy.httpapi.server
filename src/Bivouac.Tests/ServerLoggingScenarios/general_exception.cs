@@ -1,18 +1,20 @@
 ﻿using System.Net.Http;
+using System.Threading.Tasks;
 using Bivouac.Events;
 using NUnit.Framework;
 using Shouldly;
 
 namespace Bivouac.Tests.ServerLoggingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class general_exception : ScenarioBase
    {
       private HttpResponseMessage _response;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {         
-         _response = TestHost.Get("/exception");
+         _response = await TestHost.GetAsync("/exception");
       }
 
       [Test]
@@ -22,9 +24,9 @@ namespace Bivouac.Tests.ServerLoggingScenarios
       }
 
       [Test]
-      public void should_return_content()
+      public async Task should_return_content()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         var content = await _response.Content.ReadAsStringAsync();
 
          Assert.AreEqual("FAIL!", content);
       }

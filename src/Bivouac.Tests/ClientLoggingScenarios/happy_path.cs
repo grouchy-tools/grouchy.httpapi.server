@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Bivouac.EventCallbacks;
 using Shouldly;
 using Bivouac.Events;
@@ -12,31 +13,34 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.ClientLoggingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class happy_path
    {
       private StubHttpClientEventCallback _callback;
       private string _currentRequestId;
       private string _newRequestId;
       private string _correlationId;
+      private string _service;
       private string _version;
       private JObject _idsFromHeaders;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          _currentRequestId = Guid.NewGuid().ToString();
          _newRequestId = Guid.NewGuid().ToString();
          _correlationId = Guid.NewGuid().ToString();
+         _service = "my-service";
          _version = "1.0.1-client";
 
          var requestIdGetter = new StubRequestIdGetter { RequestId = _currentRequestId };
          var correlationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
-         var serviceNameGetter = new StubServiceNameGetter { Name = "my-service" };
+         var serviceNameGetter = new StubServiceNameGetter { Name = _service };
          var assemblyVersionGetter = new StubServiceVersionGetter { Version = _version };
          var guidGenerator = new StubGuidGenerator(Guid.Parse(_newRequestId));
 
          _callback = new StubHttpClientEventCallback();
-         var identifyingCallback = new IdentifyingHttpClientEventCallback(requestIdGetter, correlationIdGetter, assemblyVersionGetter);
+         var identifyingCallback = new IdentifyingHttpClientEventCallback(requestIdGetter, correlationIdGetter, serviceNameGetter, assemblyVersionGetter);
 
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
@@ -44,8 +48,8 @@ namespace Bivouac.Tests.ClientLoggingScenarios
             var httpClient = new TestHttpClient(baseHttpClient, identifyingCallback, _callback)
                .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, serviceNameGetter, assemblyVersionGetter);
 
-            var response = httpClient.GetAsync("/get-ids-from-headers").Result;
-            var content = response.Content.ReadAsStringAsync().Result;
+            var response = await httpClient.GetAsync("/get-ids-from-headers");
+            var content = await response.Content.ReadAsStringAsync();
             _idsFromHeaders = JObject.Parse(content);
          }
       }
@@ -55,9 +59,10 @@ namespace Bivouac.Tests.ClientLoggingScenarios
       {
          var lastRequest = _callback.Events.Single();
          lastRequest.Tags.ShouldNotBeNull();
-         lastRequest.Tags.ShouldContainKeyAndValue("origin-request-id", _currentRequestId);
+         lastRequest.Tags.ShouldContainKeyAndValue("upstream-request-id", _currentRequestId);
          lastRequest.Tags.ShouldContainKeyAndValue("correlation-id", _correlationId);
          lastRequest.Tags.ShouldContainKeyAndValue("request-id", _newRequestId);
+         lastRequest.Tags.ShouldContainKeyAndValue("service", _service);
          lastRequest.Tags.ShouldContainKeyAndValue("version", _version);
       }
 

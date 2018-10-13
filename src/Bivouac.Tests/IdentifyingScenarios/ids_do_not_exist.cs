@@ -1,21 +1,23 @@
-﻿using Bivouac.Events;
+﻿using System.Threading.Tasks;
+using Bivouac.Events;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Shouldly;
 
 namespace Bivouac.Tests.IdentifyingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class ids_do_not_exist : ScenarioBase
    {
       private JObject _ids;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          StubGuidGenerator.Add(RequestId, CorrelationId);
 
-         var response = TestHost.Get("/get-ids-from-context");
-         var content = response.Content.ReadAsStringAsync().Result;
+         var response = await TestHost.GetAsync("/get-ids-from-context");
+         var content = await response.Content.ReadAsStringAsync();
          _ids = JObject.Parse(content);
       }
 

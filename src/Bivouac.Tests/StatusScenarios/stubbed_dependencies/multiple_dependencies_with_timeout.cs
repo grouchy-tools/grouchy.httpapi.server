@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Bivouac.Abstractions;
 using Bivouac.Model;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,17 +9,18 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 {
+   // ReSharper disable once InconsistentNaming
    public class multiple_dependencies_with_timeout : ScenarioBase
    {
       private HttpResponseMessage _response;
       private long _duration;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          var stopwatch = Stopwatch.StartNew();
 
-         _response = TestHost.Get("/status");
+         _response = await TestHost.GetAsync("/.status");
 
          stopwatch.Stop();
          _duration = stopwatch.ElapsedMilliseconds;
@@ -33,15 +36,15 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
       }
 
       [Test]
-      public void should_return_status_code_okay()
+      public void should_return_status_code_gateway_timeout()
       {
-         Assert.AreEqual(200, (int)_response.StatusCode);
+         Assert.AreEqual(HttpStatusCode.GatewayTimeout, _response.StatusCode);
       }
 
       [Test]
-      public void should_return_exact_json_content()
+      public async Task should_return_exact_json_content()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         var content = await _response.Content.ReadAsStringAsync();
 
          // Dependency that is timed-out will be status Unknown
          Assert.AreEqual("{\"name\":null,\"availability\":\"Unknown\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Unknown\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);

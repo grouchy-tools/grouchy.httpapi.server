@@ -7,6 +7,7 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.PathMatchingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class partial_matching
    {
       //TODO

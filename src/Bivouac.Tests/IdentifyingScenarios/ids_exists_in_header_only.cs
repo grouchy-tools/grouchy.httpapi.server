@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Bivouac.Events;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -6,13 +7,13 @@ using Shouldly;
 
 namespace Bivouac.Tests.IdentifyingScenarios
 {
-
+   // ReSharper disable once InconsistentNaming
    public class ids_exists_in_header_only : ScenarioBase
    {
       private JObject _idsFromContext;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          var headers = new Dictionary<string, string>
          {
@@ -20,8 +21,8 @@ namespace Bivouac.Tests.IdentifyingScenarios
             { "correlation-id", CorrelationId.ToString() }
          };
 
-         var response = TestHost.Get("/get-ids-from-context", headers);
-         var content = response.Content.ReadAsStringAsync().Result;
+         var response = await TestHost.GetAsync("/get-ids-from-context", headers);
+         var content = await response.Content.ReadAsStringAsync();
          _idsFromContext = JObject.Parse(content);
       }
 

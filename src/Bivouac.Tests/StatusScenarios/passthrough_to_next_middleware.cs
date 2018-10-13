@@ -1,16 +1,18 @@
 ﻿using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Bivouac.Tests.StatusScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class passthrough_to_next_middleware : ScenarioBase
    {
       private HttpResponseMessage _response;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
-         _response = TestHost.Get("/another-endpoint");
+         _response = await TestHost.GetAsync("/another-endpoint");
       }
 
       [Test]
@@ -20,9 +22,9 @@ namespace Bivouac.Tests.StatusScenarios
       }
 
       [Test]
-      public void should_return_content_from_another_middleware()
+      public async Task should_return_content_from_another_middleware()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         var content = await _response.Content.ReadAsStringAsync();
 
          Assert.AreEqual("another-response", content);
       }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Bivouac.Extensions;
 using Burble.Abstractions.Extensions;
 using NUnit.Framework;
@@ -9,12 +10,13 @@ using Newtonsoft.Json.Linq;
 
 namespace Bivouac.Tests.ClientLoggingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class service_version_and_environment_are_specified
    {
       private JObject _idsFromHeaders;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          var correlationIdGetter = new StubCorrelationIdGetter();
          var guidGenerator = new StubGuidGenerator(Guid.NewGuid());
@@ -27,8 +29,8 @@ namespace Bivouac.Tests.ClientLoggingScenarios
             var httpClient = new TestHttpClient(baseHttpClient)
                .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, serviceNameGetter, assemblyVersionGetter, environment: "Staging");
 
-            var response = httpClient.GetAsync("/get-ids-from-headers").Result;
-            var content = response.Content.ReadAsStringAsync().Result;
+            var response = await httpClient.GetAsync("/get-ids-from-headers");
+            var content = await response.Content.ReadAsStringAsync();
             _idsFromHeaders = JObject.Parse(content);
          }
       }

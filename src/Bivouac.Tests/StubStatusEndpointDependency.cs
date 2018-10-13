@@ -13,7 +13,7 @@ namespace Bivouac.Tests
 
       public int DelayMs { get; set; }
 
-      public async Task<Status> GetStatus(CancellationToken cancellationToken)
+      public async Task<Status> GetStatusAsync(CancellationToken cancellationToken)
       {
          if (DelayMs != 0)
          {

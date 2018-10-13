@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.PathMatchingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class token_matching
    {
       [TestCase("/api/get/xyz", "GET", "/api/get/{id}", new[] { "id" }, new[] { "xyz" })]
@@ -13,8 +14,7 @@ namespace Bivouac.Tests.PathMatchingScenarios
       {
          var request = new StubHttpRequest { Method = method, Path = path };
 
-         IDictionary<string, string> tokens;
-         var result = request.IsFor("GET", pattern, out tokens);
+         var result = request.IsFor("GET", pattern, out var tokens);
 
          Assert.True(result);
          Assert.AreEqual(expectedTokenKeys.Length, tokens.Count);
@@ -34,8 +34,7 @@ namespace Bivouac.Tests.PathMatchingScenarios
       {
          var request = new StubHttpRequest { Method = method, Path = path };
 
-         IDictionary<string, string> tokens;
-         var result = request.IsFor("GET", pattern, out tokens);
+         var result = request.IsFor("GET", pattern, out var tokens);
 
          Assert.False(result);
          Assert.Null(tokens);

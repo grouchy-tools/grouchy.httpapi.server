@@ -10,6 +10,7 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.EventCallbackScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class json_server_event_callback
    {
       private StubHttpContext _httpContext;
@@ -87,12 +88,12 @@ namespace Bivouac.Tests.EventCallbackScenarios
       [Test]
       public void serialise_server_exception()
       {
-         var httpServerResponse = HttpServerException.Create(_httpContext, new Exception("my-exception"));
+         var httpServerResponse = HttpServerException.Create(_httpContext, new ExceptionWithStackTrace("my-exception") { });
          httpServerResponse.Timestamp = new DateTimeOffset(2016, 11, 18, 19, 52, 6, TimeSpan.Zero).AddTicks(4425454);
 
          _testSubject.Invoke(httpServerResponse);
 
-         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"exception\":{\"type\":\"Exception\",\"message\":\"my-exception\"}}");
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"exception\":{\"type\":\"ExceptionWithStackTrace\",\"message\":\"my-exception\",\"stackTrace\":\"the-stack-trace\"}}");
       }
 
       [Test]
@@ -117,6 +118,15 @@ namespace Bivouac.Tests.EventCallbackScenarios
          _testSubject.Invoke(httpServerResponse);
 
          _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"tags\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"exception\":{\"type\":\"Exception\",\"message\":\"my-exception\"}}");
+      }
+
+      private class ExceptionWithStackTrace : Exception
+      {
+         public ExceptionWithStackTrace(string message) : base(message)
+         {
+         }
+         
+         public override string StackTrace { get; } = "the-stack-trace";
       }
    }
 }

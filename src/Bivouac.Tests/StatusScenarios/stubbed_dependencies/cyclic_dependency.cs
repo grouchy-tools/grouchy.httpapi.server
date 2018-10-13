@@ -2,6 +2,7 @@
 
 namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 {
+   // ReSharper disable once InconsistentNaming
    public class cyclic_dependency
    {
       [Test]

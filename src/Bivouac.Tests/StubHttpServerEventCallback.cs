@@ -1,11 +1,11 @@
-﻿namespace Bivouac.Tests
-{
-   using System;
-   using System.Collections.Generic;
-   using System.Linq;
-   using Bivouac.Abstractions;
-   using Bivouac.Events;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Bivouac.Abstractions;
+using Bivouac.Events;
 
+namespace Bivouac.Tests
+{
    public class StubHttpServerEventCallback : IHttpServerEventCallback
    {
       public Exception Exception { get; set; }

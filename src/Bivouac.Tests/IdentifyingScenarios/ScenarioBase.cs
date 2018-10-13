@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Bivouac.Abstractions;
 using Bivouac.EventCallbacks;
-using Bivouac.Events;
 using Bivouac.Extensions;
-using Bivouac.Middleware;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -15,15 +13,15 @@ namespace Bivouac.Tests.IdentifyingScenarios
 {
    public abstract class ScenarioBase
    {
-      public StubGuidGenerator StubGuidGenerator { get; private set; }
+      protected StubGuidGenerator StubGuidGenerator { get; private set; }
 
-      public Guid RequestId { get; private set; }
+      protected Guid RequestId { get; private set; }
 
-      public Guid CorrelationId { get; private set; }
+      protected Guid CorrelationId { get; private set; }
 
-      public StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
+      protected StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
 
-      public LightweightWebApiHost TestHost { get; private set; }
+      protected LightweightWebApiHost TestHost { get; private set; }
 
       [OneTimeSetUp]
       public void setup_scenario_base()
@@ -34,24 +32,22 @@ namespace Bivouac.Tests.IdentifyingScenarios
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
          TestHost = new LightweightWebApiHost(services =>
          {
-            services.AddDefaultServices("theServiceName");
+            services.AddDefaultServices();
 
             services.AddSingleton<IGenerateGuids>(StubGuidGenerator);
-            services.AddSingleton<IHttpServerEventCallback>(CreateIdentifyingCallbackCallback);
+            services.AddSingleton<IHttpServerEventCallback>(CreateIdentifyingCallback);
             services.AddSingleton<IHttpServerEventCallback>(StubHttpServerEventCallback);
-         }, builder =>
-         {
-            Configure(builder);
-         });
+         }, Configure);
       }
 
-      private static IHttpServerEventCallback CreateIdentifyingCallbackCallback(IServiceProvider serviceProvider)
+      private static IdentifyingHttpServerEventCallback CreateIdentifyingCallback(IServiceProvider serviceProvider)
       {
          var requestIdGetter = serviceProvider.GetService<IGetRequestId>();
          var correlationIdGetter = serviceProvider.GetService<IGetCorrelationId>();
-         var assemblyVersionGetter = serviceProvider.GetService<IGetServiceVersion>();
+         var serviceNameGetter = serviceProvider.GetService<IGetServiceName>();
+         var serviceVersionGetter = serviceProvider.GetService<IGetServiceVersion>();
 
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, assemblyVersionGetter);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, serviceNameGetter, serviceVersionGetter);
 
          return identifyingCallback;
       }

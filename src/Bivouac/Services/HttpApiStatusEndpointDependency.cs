@@ -22,11 +22,11 @@ namespace Bivouac.Services
 
       public string Name { get; }
 
-      public async Task<Status> GetStatus(CancellationToken cancellationToken)
+      public async Task<Status> GetStatusAsync(CancellationToken cancellationToken)
       {
          try
          {
-            var response = await _httpClient.GetAsync("status", cancellationToken);
+            var response = await _httpClient.GetAsync(".status", cancellationToken);
 
             response.EnsureSuccessStatusCode();
 

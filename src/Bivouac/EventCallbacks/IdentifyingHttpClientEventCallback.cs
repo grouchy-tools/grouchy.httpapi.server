@@ -10,23 +10,27 @@ namespace Bivouac.EventCallbacks
    {
       private readonly IGetRequestId _requestIdGetter;
       private readonly IGetCorrelationId _correlationIdGetter;
+      private readonly IGetServiceName _serviceNameGetter;
       private readonly IGetServiceVersion _serviceVersionGetter;
 
       public IdentifyingHttpClientEventCallback(
          IGetRequestId requestIdGetter,
          IGetCorrelationId correlationIdGetter,
+         IGetServiceName serviceNameGetter,
          IGetServiceVersion serviceVersionGetter)
       {
          _requestIdGetter = requestIdGetter ?? throw new ArgumentNullException(nameof(requestIdGetter));
          _correlationIdGetter = correlationIdGetter ?? throw new ArgumentNullException(nameof(correlationIdGetter));
+         _serviceNameGetter = serviceNameGetter ?? throw new ArgumentNullException(nameof(serviceNameGetter));
          _serviceVersionGetter = serviceVersionGetter ?? throw new ArgumentNullException(nameof(serviceVersionGetter));
       }
 
       public void Invoke(IHttpClientEvent @event)
       {
-         AddTag(@event, "origin-request-id", _requestIdGetter.Get);
+         AddTag(@event, "upstream-request-id", _requestIdGetter.Get);
          AddTag(@event, "correlation-id", _correlationIdGetter.Get);
          AddTag(@event, "request-id", () => GetRequestIdFromHeader(@event.Request));         
+         AddTag(@event, "service", _serviceNameGetter.Get);
          AddTag(@event, "version", _serviceVersionGetter.Get);
       }
 

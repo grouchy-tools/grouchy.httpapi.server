@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Bivouac.Events;
 using NUnit.Framework;
 using Shouldly;
 
 namespace Bivouac.Tests.ServerLoggingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class request_id_getter_throws_exception : ScenarioBase
    {
       private HttpResponseMessage _response;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {         
          StubRequestIdGetter.Exception = new Exception("Problem with RequestIdGetter");
 
-         _response = TestHost.Get("/happy-path");
+         _response = await TestHost.GetAsync("/happy-path");
       }
 
       [Test]
@@ -25,9 +27,9 @@ namespace Bivouac.Tests.ServerLoggingScenarios
       }
 
       [Test]
-      public void should_return_content_from_next_middleware()
+      public async Task should_return_content_from_next_middleware()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         var content = await _response.Content.ReadAsStringAsync();
 
          Assert.AreEqual(content, "Complete!");
       }

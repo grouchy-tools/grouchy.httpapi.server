@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Threading.Tasks;
 using Bivouac.Abstractions;
 using Bivouac.Model;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,16 +8,17 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 {
+   // ReSharper disable once InconsistentNaming
    public class dependency : ScenarioBase
    {
       private HttpResponseMessage _response;
       private string _content;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
-         _response = TestHost.Get("/status");
-         _content = _response.Content.ReadAsStringAsync().Result;
+         _response = await TestHost.GetAsync("/.status");
+         _content = await _response.Content.ReadAsStringAsync();
       }
 
       protected override void ConfigureServices(IServiceCollection services)

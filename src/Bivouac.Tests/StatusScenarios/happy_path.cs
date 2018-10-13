@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Bivouac.Model;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -8,17 +8,18 @@ using Shouldly;
 
 namespace Bivouac.Tests.StatusScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class happy_path : ScenarioBase
    {
       private HttpResponseMessage _response;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          StubServiceNameGetter.Name = "myName";
          StubServiceVersionGetter.Version = "myVersion";
 
-         _response = TestHost.Get("/status");
+         _response = await TestHost.GetAsync("/.status");
       }
 
       [Test]
@@ -28,9 +29,9 @@ namespace Bivouac.Tests.StatusScenarios
       }
 
       [Test]
-      public void should_return_json_content()
+      public async Task should_return_json_content()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         var content = await _response.Content.ReadAsStringAsync();
          var status = JsonConvert.DeserializeObject<Status>(content);
 
          Assert.AreEqual("myName", status.Name);
@@ -42,15 +43,14 @@ namespace Bivouac.Tests.StatusScenarios
       [Test]
       public void should_return_json_content_type()
       {
-         IEnumerable<string> values;
-         _response.Content.Headers.TryGetValues("Content-Type", out values).ShouldBe(true);
+         _response.Content.Headers.TryGetValues("Content-Type", out var values).ShouldBe(true);
          values.Single().ShouldBe("application/json");
       }
 
       [Test]
-      public void should_return_exact_json_content()
+      public async Task should_return_exact_json_content()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         var content = await _response.Content.ReadAsStringAsync();
 
          Assert.AreEqual("{\"name\":\"myName\",\"availability\":\"Available\",\"version\":\"myVersion\",\"host\":\"http://localhost\"}", content);
       }

@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.StatusScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class availability_scenarios
    {
       [Test]

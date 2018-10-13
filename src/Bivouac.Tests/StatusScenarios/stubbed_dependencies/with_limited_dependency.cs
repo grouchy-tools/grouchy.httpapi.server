@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Bivouac.Abstractions;
 using Bivouac.Model;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,16 +8,17 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 {
+   // ReSharper disable once InconsistentNaming
    public class with_limited_dependency : ScenarioBase
    {
       private HttpResponseMessage _response;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          StubServiceNameGetter.Name = "myName";
 
-         _response = TestHost.Get("/status");
+         _response = await TestHost.GetAsync("/.status");
       }
 
       protected override void ConfigureServices(IServiceCollection services)
@@ -26,15 +29,15 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
       }
 
       [Test]
-      public void should_return_status_code_okay()
+      public void should_return_status_code_bad_gateway()
       {
-         Assert.AreEqual(200, (int)_response.StatusCode);
+         Assert.AreEqual(HttpStatusCode.BadGateway, _response.StatusCode);
       }
 
       [Test]
-      public void should_return_exact_json_content()
+      public async Task should_return_exact_json_content()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         var content = await _response.Content.ReadAsStringAsync();
 
          Assert.AreEqual("{\"name\":\"myName\",\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDependency\",\"availability\":\"Limited\"}]}", content);
       }

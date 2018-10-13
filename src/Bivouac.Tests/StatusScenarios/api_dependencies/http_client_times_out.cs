@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Bivouac.Model;
 using Bivouac.Services;
@@ -8,22 +9,23 @@ using Burble.Abstractions.Exceptions;
 
 namespace Bivouac.Tests.StatusScenarios.api_dependencies
 {
+   // ReSharper disable once InconsistentNaming
    public class http_client_times_out : ScenarioBase
    {
       private Status _result;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          var httpClient = new StubHttpClient<Status>
          {
             BaseAddress = new Uri("http://stubbaseaddress"),
-            Exception = new HttpClientTimeoutException(HttpMethod.Get, new Uri("http://stubbaseaddress/status"))
+            Exception = new HttpClientTimeoutException(HttpMethod.Get, new Uri("http://stubbaseaddress/.status"))
          };
 
          var testSubject = new ApiStatusEndpointDependency("expectedDependencyName", httpClient);
 
-         _result = testSubject.GetStatus(CancellationToken.None).Result;
+         _result = await testSubject.GetStatusAsync(CancellationToken.None);
       }
 
       [Test]

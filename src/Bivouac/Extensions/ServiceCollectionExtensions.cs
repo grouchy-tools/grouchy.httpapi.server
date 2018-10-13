@@ -14,7 +14,7 @@ namespace Bivouac.Extensions
 {
    public static class ServiceCollectionExtensions
    {
-      public static IServiceCollection AddDefaultServices(this IServiceCollection services, string name)
+      public static IServiceCollection AddDefaultServices(this IServiceCollection services)
       {
          if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -24,8 +24,8 @@ namespace Bivouac.Extensions
          
          services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
          services.AddTransient<IGenerateGuids, GuidGenerator>();
+         services.AddTransient<IGetServiceName, ServiceNameGetter>();
          services.AddTransient<IGetServiceVersion, ServiceVersionGetter>();
-         services.AddTransient<IGetServiceName>(sp => new GetServiceName { Name = name });
          services.AddTransient<IStatusAvailabilityService, StatusAvailabilityService>();
 
          services.AddTransient<IHttpServerEventCallback, IdentifyingHttpServerEventCallback>();

@@ -7,12 +7,13 @@ using Bivouac.Services;
 
 namespace Bivouac.Tests.StatusScenarios.api_dependencies
 {
+   // ReSharper disable once InconsistentNaming
    public class http_client_times_out_with_task_cancelled : ScenarioBase
    {
       private Status _result;
 
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
          var httpClient = new StubHttpClient<Status>
          {
@@ -22,7 +23,7 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
 
          var testSubject = new ApiStatusEndpointDependency("expectedDependencyName", httpClient);
 
-         _result = testSubject.GetStatus(CancellationToken.None).Result;
+         _result = await testSubject.GetStatusAsync(CancellationToken.None);
       }
 
       [Test]

@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace Bivouac.Tests.PathMatchingScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class simple_matching
    {
       [TestCase("/api/get", "GET", "/api/get")]

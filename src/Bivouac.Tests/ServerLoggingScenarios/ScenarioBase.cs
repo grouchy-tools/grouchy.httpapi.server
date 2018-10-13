@@ -20,12 +20,16 @@ namespace Bivouac.Tests.ServerLoggingScenarios
 
       public string CorrelationId { get; private set; }
 
+      public string Service { get; private set; }
+      
       public string Version { get; private set; }
 
       public StubRequestIdGetter StubRequestIdGetter { get; private set; }
 
       public StubCorrelationIdGetter StubCorrelationIdGetter { get; private set; }
 
+      public StubServiceNameGetter StubServiceNameGetter { get; private set; }
+      
       public StubServiceVersionGetter StubServiceVersionGetter { get; private set; }
 
       public StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
@@ -37,16 +41,19 @@ namespace Bivouac.Tests.ServerLoggingScenarios
       {
          RequestId = Guid.NewGuid().ToString();
          CorrelationId = Guid.NewGuid().ToString();
+         Service = "theService";
          Version = "1.2.3-server";
          StubRequestIdGetter = new StubRequestIdGetter { RequestId = RequestId };
          StubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = CorrelationId };
+         StubServiceNameGetter = new StubServiceNameGetter { Name = Service };
          StubServiceVersionGetter = new StubServiceVersionGetter { Version = Version };
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubRequestIdGetter, StubCorrelationIdGetter, StubServiceVersionGetter);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubRequestIdGetter, StubCorrelationIdGetter, StubServiceNameGetter, StubServiceVersionGetter);
          TestHost = new LightweightWebApiHost(services =>
          {
-            services.AddDefaultServices("serviceName");
+            services.AddDefaultServices();
 
+            services.AddSingleton<IGetServiceName>(StubServiceNameGetter);
             services.AddSingleton<IGetServiceVersion>(StubServiceVersionGetter);
             services.AddSingleton<IGetRequestId>(StubRequestIdGetter);
             services.AddSingleton<IGetCorrelationId>(StubCorrelationIdGetter);

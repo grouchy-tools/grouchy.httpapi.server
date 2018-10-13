@@ -40,6 +40,12 @@ namespace Bivouac.Newtonsoft.Json
             writer.WritePropertyName("message");
             writer.WriteValue(e.Message);
 
+            if (!string.IsNullOrEmpty(e.StackTrace))
+            {
+                writer.WritePropertyName("stackTrace");
+                writer.WriteValue(e.StackTrace);
+            }
+
             if (e.InnerException != null)
             {
                 writer.WritePropertyName("innerException");

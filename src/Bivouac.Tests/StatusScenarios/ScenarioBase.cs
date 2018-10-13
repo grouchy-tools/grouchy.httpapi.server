@@ -16,6 +16,8 @@ namespace Bivouac.Tests.StatusScenarios
 
       protected StubServiceVersionGetter StubServiceVersionGetter { get; private set; }
 
+      protected StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
+
       protected LightweightWebApiHost TestHost { get; private set; }
 
       [OneTimeSetUp]
@@ -23,13 +25,15 @@ namespace Bivouac.Tests.StatusScenarios
       {
          StubServiceNameGetter = new StubServiceNameGetter();
          StubServiceVersionGetter = new StubServiceVersionGetter();
+         StubHttpServerEventCallback = new StubHttpServerEventCallback();
 
          TestHost = new LightweightWebApiHost(services =>
          {
-            services.AddDefaultServices("test-host");
+            services.AddDefaultServices();
 
             services.AddSingleton<IGetServiceName>(StubServiceNameGetter);
             services.AddSingleton<IGetServiceVersion>(StubServiceVersionGetter);
+            services.AddSingleton<IHttpServerEventCallback>(StubHttpServerEventCallback);
             ConfigureServices(services);
          }, Configure);
       }

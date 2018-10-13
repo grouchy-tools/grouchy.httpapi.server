@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Bivouac.Abstractions;
@@ -12,7 +14,7 @@ using Newtonsoft.Json.Serialization;
 namespace Bivouac.Middleware
 {
    public class StatusEndpointMiddleware
-   {
+   {      
       private readonly RequestDelegate _next;
       private readonly IGetServiceName _getServiceName;
       private readonly IGetServiceVersion _getServiceVersion;
@@ -34,7 +36,7 @@ namespace Bivouac.Middleware
       {
          if (context == null) throw new ArgumentNullException(nameof(context));
 
-         if (context.Request.Path == "/status")
+         if (context.Request.Path == "/.status")
          {
             var response = new Status
             {
@@ -49,7 +51,7 @@ namespace Bivouac.Middleware
             {
                // Allow dependencies to complete within 3 seconds
                var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-               var statusDependencies = statusEndpointDependencies.Select(d => new { d.Name, StatusTask = d.GetStatus(cancellationTokenSource.Token) }).ToArray();
+               var statusDependencies = statusEndpointDependencies.Select(d => new { d.Name, StatusTask = d.GetStatusAsync(cancellationTokenSource.Token) }).ToArray();
 
                try
                {
@@ -73,13 +75,26 @@ namespace Bivouac.Middleware
 
             var json = JsonConvert.SerializeObject(response, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
 
-            context.Response.StatusCode = 200;
+            context.Response.StatusCode = (int)MapStatusCode(response.Availability);
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(json);
          }
          else
          {
             await _next(context);
+         }
+      }
+
+      private static HttpStatusCode MapStatusCode(Availability availability)
+      {
+         switch (availability)
+         {
+            case Availability.Available:
+               return HttpStatusCode.OK;
+            case Availability.Unknown:
+               return HttpStatusCode.GatewayTimeout;
+            default:
+               return HttpStatusCode.BadGateway;
          }
       }
    }

@@ -1,38 +1,22 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
+using Shouldly;
 
 namespace Bivouac.Tests.StatusScenarios
 {
+   // ReSharper disable once InconsistentNaming
    public class ping : ScenarioBase
    {
       private HttpResponseMessage _response;
 
-         //protected override void ConfigureServicesBuilder(IServiceCollection services)
-         //{
-         //   base.ConfigureServicesBuilder(services);
-
-         //   var status = new Status { Name = "myDependency", Availability = Availability.Limited };
-
-         //   services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status });
-         //}
-
       [OneTimeSetUp]
-      public void setup_scenario()
+      public async Task setup_scenario()
       {
-         _response = TestHost.Get("/ping");
+         _response = await TestHost.GetAsync("/.ping");
       }
-      //public ping()
-      //{
-      //   //Action<IServiceCollection> configureServices = services =>
-      //   //{
-      //   //   Startup.ConfigureServices(services);
-      //   //   services.AddSingleton<IServerLoggingService, NoOpServerLoggingService>();
-      //   //};
-      //   //var testHost = new LightweightWebApiHost(configureServices, Startup.Configure);
-
-      //   _response = testHost.Get("/ping");
-      //}
 
       [Test]
       public void should_return_status_code_200()
@@ -41,11 +25,24 @@ namespace Bivouac.Tests.StatusScenarios
       }
 
       [Test]
-      public void should_return_content_pong()
+      public void should_return_json_content_type()
       {
-         var content = _response.Content.ReadAsStringAsync().Result;
+         _response.Content.Headers.TryGetValues("Content-Type", out var values).ShouldBe(true);
+         values.Single().ShouldBe("text/plain");
+      }
+
+      [Test]
+      public async Task should_return_content_pong()
+      {
+         var content = await _response.Content.ReadAsStringAsync();
 
          Assert.AreEqual("Pong!", content);
+      }
+
+      [Test]
+      public void should_not_invoke_server_logging()
+      {
+         Assert.AreEqual(0, StubHttpServerEventCallback.Events.Count);
       }
    }
 }
