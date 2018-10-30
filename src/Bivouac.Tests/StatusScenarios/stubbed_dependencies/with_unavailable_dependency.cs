@@ -16,16 +16,16 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         StubServiceNameGetter.Name = "myName";
+         StubApplicationInfo.Name = "myName";
 
          _response = await TestHost.GetAsync("/.status");
       }
 
       protected override void ConfigureServices(IServiceCollection services)
       {
-         var status = new Status { Name = "myDependency", Availability = Availability.Unavailable };
+         var status = new Dependency { Name = "myDependency", Availability = Availability.Unavailable };
 
-         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status });
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Dependency = status });
       }
 
       [Test]
@@ -39,7 +39,7 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
       {
          var content = await _response.Content.ReadAsStringAsync();
 
-         Assert.AreEqual("{\"name\":\"myName\",\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDependency\",\"availability\":\"Unavailable\"}]}", content);
+         Assert.AreEqual("{\"name\":\"myName\",\"availability\":\"Limited\",\"dependencies\":[{\"name\":\"myDependency\",\"availability\":\"Unavailable\"}]}", content);
       }
    }
 }

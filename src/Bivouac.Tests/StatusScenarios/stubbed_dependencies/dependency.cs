@@ -23,23 +23,14 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 
       protected override void ConfigureServices(IServiceCollection services)
       {
-         var status = new Status
+         var status = new Dependency
          {
             Name = "level1",
             Availability = Availability.Available,
-            Version = "version1",
-            Dependencies = new[]
-            {
-               new Status
-               {
-                  Name="level2",
-                  Version= "version2",
-                  Availability = Availability.Available
-               }
-            }
+            Version = "version1"
          };
 
-         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status });
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Dependency = status });
       }
       
       [Test]
@@ -66,19 +57,6 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
          Assert.AreEqual("level1", level1.Name);
          Assert.AreEqual(Availability.Available, level1.Availability);
          Assert.AreEqual("version1", level1.Version);
-         Assert.AreEqual(1, level1.Dependencies.Length);
-      }
-
-      [Test]
-      public void should_return_level_2_dependency()
-      {
-         var status = JsonConvert.DeserializeObject<Status>(_content);
-         var level2 = status.Dependencies[0].Dependencies[0];
-
-         Assert.AreEqual("level2", level2.Name);
-         Assert.AreEqual(Availability.Available, level2.Availability);
-         Assert.AreEqual("version2", level2.Version);
-         Assert.Null(level2.Dependencies);
       }
    }
 }

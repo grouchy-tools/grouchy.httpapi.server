@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Bivouac.Extensions;
 using Burble.Abstractions.Extensions;
+using Burble.Extensions;
 using NUnit.Framework;
 using Shouldly;
 using Newtonsoft.Json.Linq;
@@ -20,14 +21,13 @@ namespace Bivouac.Tests.ClientLoggingScenarios
       {
          var correlationIdGetter = new StubCorrelationIdGetter();
          var guidGenerator = new StubGuidGenerator(Guid.NewGuid());
-         var serviceNameGetter = new StubServiceNameGetter { Name = "my-service" };
-         var assemblyVersionGetter = new StubServiceVersionGetter { Version = "1.0-preview" };
+         var applicationInfo = new StubApplicationInfo { Name = "my-service", Version = "1.0-preview", OperatingSystem = "my-os" };
 
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
             var httpClient = new TestHttpClient(baseHttpClient)
-               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, serviceNameGetter, assemblyVersionGetter);
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, applicationInfo);
 
             var response = await httpClient.GetAsync("/get-ids-from-headers");
             var content = await response.Content.ReadAsStringAsync();
@@ -38,7 +38,7 @@ namespace Bivouac.Tests.ClientLoggingScenarios
       [Test]
       public void user_agent_is_added_to_the_headers()
       {
-         _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service/1.0-preview ({RuntimeInformation.OSDescription.Trim()})");
+         _idsFromHeaders["userAgent"].Value<string>().ShouldBe("my-service/1.0-preview (my-os)");
       }
    }
 }

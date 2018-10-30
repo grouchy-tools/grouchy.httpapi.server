@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using Bivouac.Abstractions;
+using Bivouac.CircuitBreaking;
 using Bivouac.EventCallbacks;
 using Bivouac.Services;
 using Burble.Abstractions;
+using Burble.Abstractions.CircuitBreaking;
 using Burble.Abstractions.Configuration;
+using Burble.Abstractions.Identifying;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,10 +26,11 @@ namespace Bivouac.Extensions
          services.Add(ServiceDescriptor.Scoped<IGetCorrelationId, CorrelationIdGetter>());
          services.Add(ServiceDescriptor.Scoped<HttpContext>(sp => sp.GetService<IHttpContextAccessor>().HttpContext));
          
+         services.AddHostedService<CircuitBreakingHostedService>();
+
          services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
          services.AddTransient<IGenerateGuids, GuidGenerator>();
-         services.AddTransient<IGetServiceName, ServiceNameGetter>();
-         services.AddTransient<IGetServiceVersion, ServiceVersionGetter>();
+         services.AddTransient<IApplicationInfo, ApplicationInfo>();
          services.AddTransient<IStatusAvailabilityService, StatusAvailabilityService>();
 
          services.AddTransient<IHttpServerEventCallback, IdentifyingHttpServerEventCallback>();
@@ -49,10 +54,10 @@ namespace Bivouac.Extensions
          return services;
       }
 
-      public static IServiceCollection AddHttpApi<TConfiguration, TContract, TConcrete>(this IServiceCollection services, string name, IConfiguration configuration)
+      public static IServiceCollection AddHttpApi<TConfiguration, TContract, TService>(this IServiceCollection services, IConfiguration configuration)
          where TConfiguration : class, IHttpApiConfiguration, new()
          where TContract : class
-         where TConcrete : class, TContract
+         where TService : class, TContract
       {
          if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -60,35 +65,44 @@ namespace Bivouac.Extensions
 
          services.AddTransient<TContract>(sp =>
          {
-            var httpClient = BuildHttpClient<TConfiguration>(sp);
+            var (httpClient, _) = BuildHttpClient<TConfiguration>(sp);
 
-            return (TContract)ActivatorUtilities.CreateInstance<TConcrete>(sp, httpClient);
+            return (TContract)ActivatorUtilities.CreateInstance<TService>(sp, httpClient);
          });
 
          services.AddTransient<IStatusEndpointDependency>(sp =>
          {
-            var httpClient = BuildHttpClient<TConfiguration>(sp);
+            var circuitBreakingStateManager = sp.GetRequiredService<ICircuitBreakingStateManager<HttpStatusCode>>();
+            var (httpClient, typedConfiguration) = BuildHttpClient<TConfiguration>(sp);
             
-            return new ApiStatusEndpointDependency(name, httpClient);
+            var httpApiStatusEndpointDependency = new HttpApiStatusEndpointDependency(httpClient, typedConfiguration);
+
+            if (typedConfiguration is IHttpApiWithCircuitBreaking httpApiWithCircuitBreaking)
+            {
+               return new CircuitBreakingStatusEndpointDependency<HttpStatusCode>(httpApiStatusEndpointDependency, circuitBreakingStateManager.Get(httpApiWithCircuitBreaking));
+            }
+            
+            return httpApiStatusEndpointDependency;
          });
 
          return services;
       }
 
-      private static IHttpClient BuildHttpClient<TConfiguration>(IServiceProvider sp) where TConfiguration : IHttpApiConfiguration
+      // TODO: Move this behind an interface
+      private static (IHttpClient, TConfiguration) BuildHttpClient<TConfiguration>(IServiceProvider sp) where TConfiguration : IHttpApiConfiguration
       {
          var httpClientRegistry = sp.GetRequiredService<IHttpClientRegistry>();
          var httpClientDecorators = sp.GetRequiredService<IEnumerable<IHttpClientDecorator>>();
-         var typedConfig = sp.GetRequiredService<TConfiguration>();
+         var configuration = sp.GetRequiredService<TConfiguration>();
 
-         var httpClient = httpClientRegistry.Get(typedConfig);
+         var httpClient = httpClientRegistry.Get(configuration);
 
          foreach (var httpClientDecorator in httpClientDecorators)
          {
-            httpClient = httpClientDecorator.Decorate(httpClient);
+            httpClient = httpClientDecorator.Decorate(httpClient, configuration);
          }
 
-         return httpClient;
+         return (httpClient, configuration);
       }
    }
 }

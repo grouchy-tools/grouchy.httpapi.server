@@ -16,8 +16,8 @@ namespace Bivouac.Tests.StatusScenarios
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         StubServiceNameGetter.Name = "myName";
-         StubServiceVersionGetter.Version = "myVersion";
+         StubApplicationInfo.Name = "myName";
+         StubApplicationInfo.Version = "myVersion";
 
          _response = await TestHost.GetAsync("/.status");
       }
@@ -37,7 +37,6 @@ namespace Bivouac.Tests.StatusScenarios
          Assert.AreEqual("myName", status.Name);
          Assert.AreEqual(Availability.Available, status.Availability);
          Assert.AreEqual("myVersion", status.Version);
-         Assert.AreEqual("http://localhost", status.Host);
       }
 
       [Test]
@@ -52,7 +51,7 @@ namespace Bivouac.Tests.StatusScenarios
       {
          var content = await _response.Content.ReadAsStringAsync();
 
-         Assert.AreEqual("{\"name\":\"myName\",\"availability\":\"Available\",\"version\":\"myVersion\",\"host\":\"http://localhost\"}", content);
+         Assert.AreEqual("{\"name\":\"myName\",\"availability\":\"Available\",\"version\":\"myVersion\"}", content);
       }
    }
 }

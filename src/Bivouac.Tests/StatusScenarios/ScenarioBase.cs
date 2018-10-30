@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using Banshee;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,15 +7,16 @@ using Microsoft.AspNetCore.Http;
 using Bivouac.Abstractions;
 using Bivouac.Extensions;
 using Bivouac.Middleware;
+using Burble.Abstractions.CircuitBreaking;
+using Burble.Abstractions.Identifying;
+using Burble.CircuitBreaking;
 using NUnit.Framework;
 
 namespace Bivouac.Tests.StatusScenarios
 {
    public abstract class ScenarioBase
    {
-      protected StubServiceNameGetter StubServiceNameGetter { get; private set; }
-
-      protected StubServiceVersionGetter StubServiceVersionGetter { get; private set; }
+      protected StubApplicationInfo StubApplicationInfo { get; private set; }
 
       protected StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
 
@@ -23,16 +25,15 @@ namespace Bivouac.Tests.StatusScenarios
       [OneTimeSetUp]
       public void setup_scenario_base()
       {
-         StubServiceNameGetter = new StubServiceNameGetter();
-         StubServiceVersionGetter = new StubServiceVersionGetter();
+         StubApplicationInfo = new StubApplicationInfo();
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
 
          TestHost = new LightweightWebApiHost(services =>
          {
             services.AddDefaultServices();
 
-            services.AddSingleton<IGetServiceName>(StubServiceNameGetter);
-            services.AddSingleton<IGetServiceVersion>(StubServiceVersionGetter);
+            services.AddSingleton<ICircuitBreakingStateManager<HttpStatusCode>, CircuitBreakingStateManager<HttpStatusCode>>();
+            services.AddSingleton<IApplicationInfo>(StubApplicationInfo);
             services.AddSingleton<IHttpServerEventCallback>(StubHttpServerEventCallback);
             ConfigureServices(services);
          }, Configure);

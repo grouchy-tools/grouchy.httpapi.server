@@ -1,5 +1,7 @@
 ﻿using System;
 using Bivouac.Abstractions;
+using Burble.Abstractions;
+using Burble.Abstractions.Identifying;
 
 namespace Bivouac.EventCallbacks
 {
@@ -7,27 +9,24 @@ namespace Bivouac.EventCallbacks
    {
       private readonly IGetRequestId _requestIdGetter;
       private readonly IGetCorrelationId _correlationIdGetter;
-      private readonly IGetServiceName _serviceNameGetter;
-      private readonly IGetServiceVersion _serviceVersionGetter;
+      private readonly IApplicationInfo _applicationInfo;
 
       public IdentifyingHttpServerEventCallback(
          IGetRequestId requestIdGetter,
          IGetCorrelationId correlationIdGetter,
-         IGetServiceName serviceNameGetter,
-         IGetServiceVersion serviceVersionGetter)
+         IApplicationInfo applicationInfo)
       {
          _requestIdGetter = requestIdGetter ?? throw new ArgumentNullException(nameof(requestIdGetter));
          _correlationIdGetter = correlationIdGetter ?? throw new ArgumentNullException(nameof(correlationIdGetter));
-         _serviceNameGetter = serviceNameGetter ?? throw new ArgumentNullException(nameof(serviceNameGetter));
-         _serviceVersionGetter = serviceVersionGetter ?? throw new ArgumentNullException(nameof(serviceVersionGetter));
+         _applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
       }
 
       public void Invoke(IHttpServerEvent @event)
       {
          AddTag(@event, "request-id", _requestIdGetter.Get);
          AddTag(@event, "correlation-id", _correlationIdGetter.Get);
-         AddTag(@event, "service", _serviceNameGetter.Get);
-         AddTag(@event, "version", _serviceVersionGetter.Get);
+         AddTag(@event, "service", () => _applicationInfo.Name);
+         AddTag(@event, "version", () => _applicationInfo.Version);
       }
 
       private static void AddTag(IHttpServerEvent @event, string key, Func<string> valueGetter)

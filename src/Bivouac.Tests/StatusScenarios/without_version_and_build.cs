@@ -26,7 +26,7 @@ namespace Bivouac.Tests.StatusScenarios
       {
          var content = await _response.Content.ReadAsStringAsync();
 
-         Assert.AreEqual("{\"name\":null,\"availability\":\"Available\",\"host\":\"http://localhost\"}", content);
+         Assert.AreEqual("{\"name\":null,\"availability\":\"Available\"}", content);
       }
    }
 }

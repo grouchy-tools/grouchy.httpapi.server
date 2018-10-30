@@ -34,8 +34,16 @@ namespace Bivouac.Tests
 
          if (Response != null)
          {
-            var json = JsonConvert.SerializeObject(Response);
-            content = new StringContent(json, Encoding.UTF8, "application/json");
+            var responseString = Response as string;
+            if (responseString != null)
+            {
+               content = new StringContent(responseString, Encoding.UTF8, "text/plain");
+            }
+            else
+            {
+               var json = JsonConvert.SerializeObject(Response);
+               content = new StringContent(json, Encoding.UTF8, "application/json");
+            }
          }
 
          return new HttpResponseMessage(StatusCode ?? HttpStatusCode.OK) { Content = content };

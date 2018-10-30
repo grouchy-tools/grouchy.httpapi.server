@@ -21,11 +21,11 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 
       protected override void ConfigureServices(IServiceCollection services)
       {
-         var status1 = new Status { Name = "myDep1", Availability = Availability.Limited };
-         var status2 = new Status { Name = "myDep2", Availability = Availability.Unknown };
+         var status1 = new Dependency { Name = "myDep1", Availability = Availability.Limited };
+         var status2 = new Dependency { Name = "myDep2", Availability = Availability.Unknown };
 
-         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status1 });
-         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Status = status2 });
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Dependency = status1 });
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Dependency = status2 });
       }
 
       [Test]
@@ -39,7 +39,7 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
       {
          var content = await _response.Content.ReadAsStringAsync();
 
-         Assert.AreEqual("{\"name\":null,\"availability\":\"Limited\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Limited\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
+         Assert.AreEqual("{\"name\":null,\"availability\":\"Limited\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Limited\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
       }
    }
 }

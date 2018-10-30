@@ -12,7 +12,7 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
    // ReSharper disable once InconsistentNaming
    public class http_client_times_out : ScenarioBase
    {
-      private Status _result;
+      private Dependency _result;
 
       [OneTimeSetUp]
       public async Task setup_scenario()
@@ -23,15 +23,15 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
             Exception = new HttpClientTimeoutException(HttpMethod.Get, new Uri("http://stubbaseaddress/.status"))
          };
 
-         var testSubject = new ApiStatusEndpointDependency("expectedDependencyName", httpClient);
+         var testSubject = new HttpApiStatusEndpointDependency(httpClient, new HttpApiConfiguration { Name = "expectedDependencyName"});
 
          _result = await testSubject.GetStatusAsync(CancellationToken.None);
       }
 
       [Test]
-      public void should_return_status_object()
+      public void should_return_instance()
       {
-         Assert.IsInstanceOf<Status>(_result);
+         Assert.That(_result, Is.Not.Null);
       }
 
       [Test]
@@ -44,12 +44,6 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
       public void should_return_unknown()
       {
          Assert.AreEqual(Availability.Unknown, _result.Availability);
-      }
-
-      [Test]
-      public void should_return_host()
-      {
-         Assert.AreEqual("http://stubbaseaddress", _result.Host);
       }
    }
 }

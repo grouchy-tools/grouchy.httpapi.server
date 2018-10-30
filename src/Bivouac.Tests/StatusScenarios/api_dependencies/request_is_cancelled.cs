@@ -10,7 +10,7 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
    // ReSharper disable once InconsistentNaming
    public class request_is_cancelled : ScenarioBase
    {
-      private Status _result;
+      private Dependency _result;
 
       [OneTimeSetUp]
       public async Task setup_scenario()
@@ -21,15 +21,15 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
             Latency = TimeSpan.FromSeconds(3)
          };
 
-         var testSubject = new ApiStatusEndpointDependency("expectedDependencyName", httpClient);
+         var testSubject = new HttpApiStatusEndpointDependency(httpClient, new HttpApiConfiguration { Name = "expectedDependencyName"});
 
          _result = await testSubject.GetStatusAsync(new CancellationTokenSource(20).Token);
       }
 
       [Test]
-      public void should_return_status_object()
+      public void should_return_instance()
       {
-         Assert.IsInstanceOf<Status>(_result);
+         Assert.That(_result, Is.Not.Null);
       }
 
       [Test]
@@ -42,12 +42,6 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
       public void should_return_unknown()
       {
          Assert.AreEqual(Availability.Unknown, _result.Availability);
-      }
-
-      [Test]
-      public void should_return_host()
-      {
-         Assert.AreEqual("http://stubbaseaddress", _result.Host);
       }
    }
 }

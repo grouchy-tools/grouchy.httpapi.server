@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Bivouac.Abstractions;
 using Bivouac.Model;
+using Burble.Abstractions.Identifying;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -16,19 +16,16 @@ namespace Bivouac.Middleware
    public class StatusEndpointMiddleware
    {      
       private readonly RequestDelegate _next;
-      private readonly IGetServiceName _getServiceName;
-      private readonly IGetServiceVersion _getServiceVersion;
+      private readonly IApplicationInfo _applicationInfo;
       private readonly IStatusAvailabilityService _statusAvailabilityService;
 
       public StatusEndpointMiddleware(
          RequestDelegate next,
-         IGetServiceName getServiceName,
-         IGetServiceVersion getServiceVersion,
+         IApplicationInfo applicationInfo,
          IStatusAvailabilityService statusAvailabilityService)
       {
          _next = next ?? throw new ArgumentNullException(nameof(next));
-         _getServiceName = getServiceName ?? throw new ArgumentNullException(nameof(getServiceName));
-         _getServiceVersion = getServiceVersion ?? throw new ArgumentNullException(nameof(getServiceVersion));
+         _applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
          _statusAvailabilityService = statusAvailabilityService ?? throw new ArgumentNullException(nameof(statusAvailabilityService));
       }
 
@@ -40,17 +37,16 @@ namespace Bivouac.Middleware
          {
             var response = new Status
             {
-               Name = _getServiceName.Get(),
-               Version = _getServiceVersion.Get(),
-               Host = $"{context.Request.Scheme}://{context.Request.Host}"
+               Name = _applicationInfo.Name,
+               Version = _applicationInfo.Version
             };
 
             var statusEndpointDependencies = context.RequestServices.GetServices<IStatusEndpointDependency>().ToArray();
 
             if (statusEndpointDependencies.Length != 0)
             {
-               // Allow dependencies to complete within 3 seconds
-               var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+               // Allow dependencies to complete within 1 seconds
+               var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(1));
                var statusDependencies = statusEndpointDependencies.Select(d => new { d.Name, StatusTask = d.GetStatusAsync(cancellationTokenSource.Token) }).ToArray();
 
                try
@@ -63,7 +59,8 @@ namespace Bivouac.Middleware
                   // Ignore cancellations
                }
 
-               var dependencies = statusDependencies.Select(c => c.StatusTask.Status == TaskStatus.RanToCompletion ? c.StatusTask.Result : new Status { Name = c.Name, Availability = Availability.Unknown }).ToArray();
+//               var dependencies = statusDependencies.Select(c => c.StatusTask.Result).ToArray();
+               var dependencies = statusDependencies.Select(c => c.StatusTask.Status == TaskStatus.RanToCompletion ? c.StatusTask.Result : new Dependency { Name = c.Name, Availability = Availability.Unknown }).ToArray();
 
                response.Availability = _statusAvailabilityService.GetAvailability(dependencies);
                response.Dependencies = dependencies;

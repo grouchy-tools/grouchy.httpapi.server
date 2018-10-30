@@ -25,7 +25,7 @@ namespace Bivouac.Tests.StatusScenarios
       {
          var testSubject = new StatusAvailabilityService();
 
-         var availability = testSubject.GetAvailability(new Status { Availability = dependencyAvailability });
+         var availability = testSubject.GetAvailability(new Dependency { Availability = dependencyAvailability });
 
          Assert.AreEqual(expectedAvailability, availability);
       }
@@ -50,7 +50,7 @@ namespace Bivouac.Tests.StatusScenarios
       {
          var testSubject = new StatusAvailabilityService();
 
-         var availability = testSubject.GetAvailability(new Status { Availability = dependencyAvailability1 }, new Status { Availability = dependencyAvailability2 });
+         var availability = testSubject.GetAvailability(new Dependency { Availability = dependencyAvailability1 }, new Dependency { Availability = dependencyAvailability2 });
 
          Assert.AreEqual(expectedAvailability, availability);
       }

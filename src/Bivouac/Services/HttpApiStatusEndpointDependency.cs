@@ -4,47 +4,49 @@ using System.Threading.Tasks;
 using Bivouac.Abstractions;
 using Bivouac.Model;
 using Burble.Abstractions;
+using Burble.Abstractions.Configuration;
 using Burble.Abstractions.Exceptions;
 using Burble.Abstractions.Extensions;
 using Newtonsoft.Json;
 
 namespace Bivouac.Services
 {
-   public class ApiStatusEndpointDependency : IStatusEndpointDependency
+   public class HttpApiStatusEndpointDependency : IStatusEndpointDependency
    {
       private readonly IHttpClient _httpClient;
+      private readonly IHttpApiConfiguration _httpApiConfiguration;
 
-      public ApiStatusEndpointDependency(string name, IHttpClient httpClient)
+      public HttpApiStatusEndpointDependency(
+         IHttpClient httpClient,
+         IHttpApiConfiguration httpApiConfiguration)
       {
          _httpClient = httpClient;
-         Name = name;
+         _httpApiConfiguration = httpApiConfiguration;
       }
 
-      public string Name { get; }
+      public string Name => _httpApiConfiguration.Name;
 
-      public async Task<Status> GetStatusAsync(CancellationToken cancellationToken)
+      public async Task<Dependency> GetStatusAsync(CancellationToken cancellationToken)
       {
          try
          {
-            var response = await _httpClient.GetAsync(".status", cancellationToken);
+            var response = await _httpClient.GetAsync(".ping", cancellationToken);
 
             response.EnsureSuccessStatusCode();
 
-            var content = await response.Content.ReadAsStringAsync();
-            var status = JsonConvert.DeserializeObject<Status>(content);
-            return status;
+            return new Dependency { Name = Name, Availability = Availability.Available };
          }
          catch (HttpClientTimeoutException)
          {
-            return new Status { Name = Name, Availability = Availability.Unknown, Host = _httpClient.BaseAddress.AbsoluteUri.TrimEnd('/') };
+            return new Dependency { Name = Name, Availability = Availability.Unknown };
          }
          catch (TaskCanceledException)
          {
-            return new Status { Name = Name, Availability = Availability.Unknown, Host = _httpClient.BaseAddress.AbsoluteUri.TrimEnd('/') };
+            return new Dependency { Name = Name, Availability = Availability.Unknown };
          }
          catch (Exception)
          {               
-            return new Status { Name = Name, Availability = Availability.Unavailable, Host = _httpClient.BaseAddress.AbsoluteUri.TrimEnd('/') };
+            return new Dependency { Name = Name, Availability = Availability.Unavailable };
          }
       }
    }

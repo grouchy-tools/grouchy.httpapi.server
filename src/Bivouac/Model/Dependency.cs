@@ -3,7 +3,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Bivouac.Model
 {
-   public class Status
+   public class Dependency
    {
       public string Name { get; set; }
 
@@ -12,8 +12,8 @@ namespace Bivouac.Model
 
       [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
       public string Version { get; set; }
-
+      
       [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-      public Dependency[] Dependencies { get; set; }
+      public double? ClosedPct { get; set; }
    }
 }

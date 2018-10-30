@@ -1,10 +1,11 @@
-﻿namespace Bivouac.Services
-{
-   using System;
-   using Bivouac.Abstractions;
-   using Microsoft.AspNetCore.Http;
-   using Microsoft.Extensions.Primitives;
+﻿using System;
+using Burble.Abstractions;
+using Burble.Abstractions.Identifying;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
+namespace Bivouac.Services
+{
    /// <remarks>
    /// Designed to be registered "AsScoped" due to the use of HttpContext
    /// </remarks>>
@@ -21,11 +22,8 @@
          HttpContext httpContext,
          IGenerateGuids guidGenerator)
       {
-         if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
-         if (guidGenerator == null) throw new ArgumentNullException(nameof(guidGenerator));
-
-         _httpContext = httpContext;
-         _guidGenerator = guidGenerator;
+         _httpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
+         _guidGenerator = guidGenerator ?? throw new ArgumentNullException(nameof(guidGenerator));
       }
 
       public string Get()

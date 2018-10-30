@@ -1,12 +1,12 @@
-﻿namespace Bivouac.Services
-{
-   using System.Linq;
-   using Bivouac.Abstractions;
-   using Bivouac.Model;
+﻿using System.Linq;
+using Bivouac.Abstractions;
+using Bivouac.Model;
 
+namespace Bivouac.Services
+{
    public class StatusAvailabilityService : IStatusAvailabilityService
    {
-      public Availability GetAvailability(params Status[] dependencies)
+      public Availability GetAvailability(params Dependency[] dependencies)
       {
          if (dependencies == null || dependencies.Length == 0)
          {

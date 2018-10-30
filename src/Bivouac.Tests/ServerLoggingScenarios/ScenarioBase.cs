@@ -10,6 +10,9 @@ using Bivouac.Events;
 using Bivouac.Exceptions;
 using Bivouac.Extensions;
 using Bivouac.Middleware;
+using Burble.Abstractions.CircuitBreaking;
+using Burble.Abstractions.Identifying;
+using Burble.CircuitBreaking;
 using NUnit.Framework;
 
 namespace Bivouac.Tests.ServerLoggingScenarios
@@ -28,9 +31,7 @@ namespace Bivouac.Tests.ServerLoggingScenarios
 
       public StubCorrelationIdGetter StubCorrelationIdGetter { get; private set; }
 
-      public StubServiceNameGetter StubServiceNameGetter { get; private set; }
-      
-      public StubServiceVersionGetter StubServiceVersionGetter { get; private set; }
+      public StubApplicationInfo StubApplicationInfo { get; private set; }
 
       public StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
 
@@ -45,16 +46,15 @@ namespace Bivouac.Tests.ServerLoggingScenarios
          Version = "1.2.3-server";
          StubRequestIdGetter = new StubRequestIdGetter { RequestId = RequestId };
          StubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = CorrelationId };
-         StubServiceNameGetter = new StubServiceNameGetter { Name = Service };
-         StubServiceVersionGetter = new StubServiceVersionGetter { Version = Version };
+         StubApplicationInfo = new StubApplicationInfo { Name = Service, Version = Version};
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubRequestIdGetter, StubCorrelationIdGetter, StubServiceNameGetter, StubServiceVersionGetter);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubRequestIdGetter, StubCorrelationIdGetter, StubApplicationInfo);
          TestHost = new LightweightWebApiHost(services =>
          {
             services.AddDefaultServices();
 
-            services.AddSingleton<IGetServiceName>(StubServiceNameGetter);
-            services.AddSingleton<IGetServiceVersion>(StubServiceVersionGetter);
+            services.AddSingleton<ICircuitBreakingStateManager<HttpStatusCode>, CircuitBreakingStateManager<HttpStatusCode>>();
+            services.AddSingleton<IApplicationInfo>(StubApplicationInfo);
             services.AddSingleton<IGetRequestId>(StubRequestIdGetter);
             services.AddSingleton<IGetCorrelationId>(StubCorrelationIdGetter);
             services.AddSingleton<IHttpServerEventCallback>(identifyingCallback);

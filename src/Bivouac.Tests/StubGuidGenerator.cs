@@ -1,9 +1,9 @@
-﻿namespace Bivouac.Tests
-{
-   using System;
-   using System.Collections.Generic;
-   using Bivouac.Abstractions;
+﻿using System;
+using System.Collections.Generic;
+using Burble.Abstractions;
 
+namespace Bivouac.Tests
+{
    public class StubGuidGenerator : IGenerateGuids
    {
       private readonly Queue<Guid> _guids;

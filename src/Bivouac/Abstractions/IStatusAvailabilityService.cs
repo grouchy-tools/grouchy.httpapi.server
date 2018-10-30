@@ -4,6 +4,6 @@ namespace Bivouac.Abstractions
 {
     public interface IStatusAvailabilityService
     {
-        Availability GetAvailability(params Status[] dependencies);
+        Availability GetAvailability(params Dependency[] dependencies);
     }
 }

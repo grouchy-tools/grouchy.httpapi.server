@@ -11,7 +11,7 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
    // ReSharper disable once InconsistentNaming
    public class http_client_returns_error_code : ScenarioBase
    {
-      private Status _result;
+      private Dependency _result;
 
       [OneTimeSetUp]
       public async Task setup_scenario()
@@ -22,15 +22,15 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
             StatusCode = HttpStatusCode.InternalServerError
          };
 
-         var testSubject = new ApiStatusEndpointDependency("dependencyName", httpClient);
+         var testSubject = new HttpApiStatusEndpointDependency(httpClient, new HttpApiConfiguration { Name = "dependencyName"});
 
          _result = await testSubject.GetStatusAsync(CancellationToken.None);
       }
 
       [Test]
-      public void should_return_status_object()
+      public void should_return_instance()
       {
-         Assert.IsInstanceOf<Status>(_result);
+         Assert.That(_result, Is.Not.Null);
       }
 
       [Test]
@@ -43,12 +43,6 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
       public void should_return_unavailable()
       {
          Assert.AreEqual(Availability.Unavailable, _result.Availability);
-      }
-
-      [Test]
-      public void should_return_host()
-      {
-         Assert.AreEqual("http://stubbaseaddress", _result.Host);
       }
    }
 }

@@ -28,11 +28,11 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
 
       protected override void ConfigureServices(IServiceCollection services)
       {
-         var status1 = new Status { Name = "myDep1", Availability = Availability.Limited };
-         var status2 = new Status { Name = "myDep2", Availability = Availability.Unknown };
+         var status1 = new Dependency { Name = "myDep1", Availability = Availability.Limited };
+         var status2 = new Dependency { Name = "myDep2", Availability = Availability.Unknown };
 
-         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency  { Name = "myDep1", Status = status1, DelayMs = 5000 });
-         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Name = "myDep2", Status = status2 });
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency  { Name = "myDep1", Dependency = status1, DelayMs = 5000 });
+         services.AddSingleton<IStatusEndpointDependency>(new StubStatusEndpointDependency { Name = "myDep2", Dependency = status2 });
       }
 
       [Test]
@@ -47,13 +47,13 @@ namespace Bivouac.Tests.StatusScenarios.stubbed_dependencies
          var content = await _response.Content.ReadAsStringAsync();
 
          // Dependency that is timed-out will be status Unknown
-         Assert.AreEqual("{\"name\":null,\"availability\":\"Unknown\",\"host\":\"http://localhost\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Unknown\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
+         Assert.AreEqual("{\"name\":null,\"availability\":\"Unknown\",\"dependencies\":[{\"name\":\"myDep1\",\"availability\":\"Unknown\"},{\"name\":\"myDep2\",\"availability\":\"Unknown\"}]}", content);
       }
 
       [Test]
-      public void duration_should_be_around_three_seconds()
+      public void duration_should_be_around_one_second()
       {
-         Assert.That(_duration, Is.InRange(2800, 3400));
+         Assert.That(_duration, Is.InRange(800, 1600));
       }
    }
 }

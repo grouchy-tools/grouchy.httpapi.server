@@ -9,24 +9,24 @@ namespace Bivouac.Tests.StatusScenarios.api_dependencies
    // ReSharper disable once InconsistentNaming
    public class happy_path : ScenarioBase
    {
-      private Status _result;
+      private Dependency _result;
 
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         var httpClient = new StubHttpClient<Status>
+         var httpClient = new StubHttpClient<string>
          {
-            Response = new Status { Name = "downstreamApiName", Availability = Availability.Available }
+            Response = "Hey!"
          };
-         var testSubject = new ApiStatusEndpointDependency("dependencyName", httpClient);
+         var testSubject = new HttpApiStatusEndpointDependency(httpClient, new HttpApiConfiguration { Name = "downstreamApiName" });
 
          _result = await testSubject.GetStatusAsync(CancellationToken.None);
       }
 
       [Test]
-      public void should_return_status_object()
+      public void should_return_instance()
       {
-         Assert.IsInstanceOf<Status>(_result);
+         Assert.That(_result, Is.Not.Null);
       }
 
       [Test]

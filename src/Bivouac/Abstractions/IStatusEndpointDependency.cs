@@ -8,6 +8,6 @@ namespace Bivouac.Abstractions
    {
       string Name { get; }
 
-      Task<Status> GetStatusAsync(CancellationToken cancellationToken);
+      Task<Dependency> GetStatusAsync(CancellationToken cancellationToken);
    }
 }

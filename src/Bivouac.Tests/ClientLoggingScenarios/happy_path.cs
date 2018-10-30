@@ -5,9 +5,8 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Bivouac.EventCallbacks;
 using Shouldly;
-using Bivouac.Events;
-using Bivouac.Extensions;
 using Burble.Abstractions.Extensions;
+using Burble.Extensions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
@@ -35,18 +34,17 @@ namespace Bivouac.Tests.ClientLoggingScenarios
 
          var requestIdGetter = new StubRequestIdGetter { RequestId = _currentRequestId };
          var correlationIdGetter = new StubCorrelationIdGetter { CorrelationId = _correlationId };
-         var serviceNameGetter = new StubServiceNameGetter { Name = _service };
-         var assemblyVersionGetter = new StubServiceVersionGetter { Version = _version };
+         var applicationInfo = new StubApplicationInfo { Name = _service, Version = _version, OperatingSystem = "my-os"};
          var guidGenerator = new StubGuidGenerator(Guid.Parse(_newRequestId));
 
          _callback = new StubHttpClientEventCallback();
-         var identifyingCallback = new IdentifyingHttpClientEventCallback(requestIdGetter, correlationIdGetter, serviceNameGetter, assemblyVersionGetter);
+         var identifyingCallback = new IdentifyingHttpClientEventCallback(requestIdGetter, correlationIdGetter, applicationInfo);
 
          using (var webApi = new GetIdsFromHeadersApi())
          using (var baseHttpClient = new HttpClient { BaseAddress = webApi.BaseUri })
          {
             var httpClient = new TestHttpClient(baseHttpClient, identifyingCallback, _callback)
-               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, serviceNameGetter, assemblyVersionGetter);
+               .AddIdentifyingHeaders(correlationIdGetter, guidGenerator, applicationInfo);
 
             var response = await httpClient.GetAsync("/get-ids-from-headers");
             var content = await response.Content.ReadAsStringAsync();
@@ -83,7 +81,7 @@ namespace Bivouac.Tests.ClientLoggingScenarios
       [Test]
       public void user_agent_is_added_to_the_headers()
       {
-         _idsFromHeaders["userAgent"].Value<string>().ShouldBe($"my-service/1.0.1-client ({RuntimeInformation.OSDescription.Trim()})");
+         _idsFromHeaders["userAgent"].Value<string>().ShouldBe("my-service/1.0.1-client (my-os)");
       }
    }
 }

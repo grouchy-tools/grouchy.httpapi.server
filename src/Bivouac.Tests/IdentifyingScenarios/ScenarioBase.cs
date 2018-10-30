@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Banshee;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -6,6 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Bivouac.Abstractions;
 using Bivouac.EventCallbacks;
 using Bivouac.Extensions;
+using Burble.Abstractions;
+using Burble.Abstractions.CircuitBreaking;
+using Burble.Abstractions.Identifying;
+using Burble.CircuitBreaking;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -34,6 +39,7 @@ namespace Bivouac.Tests.IdentifyingScenarios
          {
             services.AddDefaultServices();
 
+            services.AddSingleton<ICircuitBreakingStateManager<HttpStatusCode>, CircuitBreakingStateManager<HttpStatusCode>>();
             services.AddSingleton<IGenerateGuids>(StubGuidGenerator);
             services.AddSingleton<IHttpServerEventCallback>(CreateIdentifyingCallback);
             services.AddSingleton<IHttpServerEventCallback>(StubHttpServerEventCallback);
@@ -44,10 +50,9 @@ namespace Bivouac.Tests.IdentifyingScenarios
       {
          var requestIdGetter = serviceProvider.GetService<IGetRequestId>();
          var correlationIdGetter = serviceProvider.GetService<IGetCorrelationId>();
-         var serviceNameGetter = serviceProvider.GetService<IGetServiceName>();
-         var serviceVersionGetter = serviceProvider.GetService<IGetServiceVersion>();
+         var applicationInfo = serviceProvider.GetService<IApplicationInfo>();
 
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, serviceNameGetter, serviceVersionGetter);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, applicationInfo);
 
          return identifyingCallback;
       }

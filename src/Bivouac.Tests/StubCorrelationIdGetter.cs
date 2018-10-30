@@ -1,8 +1,8 @@
+using System;
+using Burble.Abstractions.Identifying;
+
 namespace Bivouac.Tests
 {
-   using System;
-   using Bivouac.Abstractions;
-
    public class StubCorrelationIdGetter : IGetCorrelationId
    {
       public string CorrelationId { get; set; }
