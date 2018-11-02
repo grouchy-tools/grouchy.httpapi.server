@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Grouchy.HttpApi.Server.Tests</RootNamespace>
+    <AssemblyName>Grouchy.HttpApi.Server.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Grouchy.HttpApi.Server/Grouchy.HttpApi.Server.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Grouchy.HttpApi.Client" Version="0.0.6-preview0002" />
+    <PackageReference Include="Grouchy.HttpApi.Client.Testing" Version="0.0.1-preview0003" />
+    <PackageReference Include="Grouchy.HttpApi.Server.Testing" Version="0.0.1-preview0004" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
+    <PackageReference Include="Shouldly" Version="3.0.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
+  </ItemGroup>
+</Project>

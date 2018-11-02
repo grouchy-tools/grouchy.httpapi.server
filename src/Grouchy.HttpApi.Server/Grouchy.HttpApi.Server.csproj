@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Product>Grouchy.HttpApi.Server</Product>
+    <Title>Grouchy.HttpApi.Server</Title>
+    <Description>Web API common library</Description>
+    <Authors>Andrew Craven</Authors>
+    <RootNamespace>Grouchy.HttpApi.Server</RootNamespace>
+    <AssemblyName>Grouchy.HttpApi.Server</AssemblyName>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Grouchy.HttpApi.Server</PackageId>
+    <PackageTags>http;web;api;common</PackageTags>
+    <PackageLicenseUrl>https://github.com/grouchy-tools/grouchy.httpapi.server/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>git://github.com/grouchy-tools/grouchy.httpapi.server</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Grouchy.Abstractions" Version="0.0.1-preview0002" />
+    <PackageReference Include="Grouchy.HttpApi.Client.Abstractions" Version="0.0.1-preview0004" />
+    <PackageReference Include="Grouchy.Resilience.Abstractions" Version="0.0.1-preview0002" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+  </ItemGroup>
+</Project>
