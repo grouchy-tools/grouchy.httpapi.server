@@ -59,8 +59,8 @@ namespace Grouchy.HttpApi.Server.Tests.ServerLoggingScenarios
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/http-exception");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("requestId", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlationId", CorrelationId);
          @event.Tags.ShouldContainKeyAndValue("version", Version);
       }
 
@@ -78,8 +78,8 @@ namespace Grouchy.HttpApi.Server.Tests.ServerLoggingScenarios
          @event.EventType.ShouldBe("HttpServerResponse");
          @event.Uri.ShouldBe("/http-exception");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId);
+         @event.Tags.ShouldContainKeyAndValue("requestId", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("correlationId", CorrelationId);
          @event.Tags.ShouldContainKeyAndValue("version", Version);
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(406);

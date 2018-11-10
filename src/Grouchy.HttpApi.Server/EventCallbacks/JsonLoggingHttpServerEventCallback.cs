@@ -1,4 +1,5 @@
-using Grouchy.HttpApi.Server.Abstractions;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Server.Abstractions.Events;
 using Grouchy.HttpApi.Server.Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

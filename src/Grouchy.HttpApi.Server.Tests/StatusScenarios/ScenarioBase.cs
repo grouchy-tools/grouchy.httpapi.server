@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
-using Grouchy.HttpApi.Server.Abstractions;
 using Grouchy.HttpApi.Server.Extensions;
 using Grouchy.Abstractions;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
 using Grouchy.HttpApi.Server.Testing;
 using Grouchy.Resilience.Abstractions.CircuitBreaking;
 using NUnit.Framework;

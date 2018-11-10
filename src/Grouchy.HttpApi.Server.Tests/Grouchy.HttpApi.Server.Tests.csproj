@@ -9,9 +9,8 @@
     <ProjectReference Include="../Grouchy.HttpApi.Server/Grouchy.HttpApi.Server.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Grouchy.HttpApi.Client" Version="0.0.6-preview0002" />
-    <PackageReference Include="Grouchy.HttpApi.Client.Testing" Version="0.0.1-preview0003" />
-    <PackageReference Include="Grouchy.HttpApi.Server.Testing" Version="0.0.1-preview0004" />
+    <PackageReference Include="Grouchy.HttpApi.Client.Abstractions" Version="0.0.1-preview0007" />
+    <PackageReference Include="Grouchy.HttpApi.Server.Testing" Version="0.0.1-preview0006" />
     <PackageReference Include="NUnit" Version="3.10.1" />
     <PackageReference Include="Shouldly" Version="3.0.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />

@@ -1,33 +1,41 @@
 ﻿using System;
-using System.Linq;
-using System.Net.Http;
-using Grouchy.HttpApi.Server.Abstractions;
 using Grouchy.Abstractions;
-using Grouchy.HttpApi.Client.Abstractions;
+using Grouchy.Abstractions.Tagging;
+using Grouchy.HttpApi.Client.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Client.Abstractions.Events;
+using Grouchy.HttpApi.Client.Abstractions.Tagging;
+using Grouchy.HttpApi.Server.Abstractions.Tagging;
 
 namespace Grouchy.HttpApi.Server.EventCallbacks
 {
    public class IdentifyingHttpClientEventCallback : IHttpClientEventCallback
    {
-      private readonly IGetRequestId _requestIdGetter;
-      private readonly IGetCorrelationId _correlationIdGetter;
+      private readonly ISessionIdAccessor _sessionIdAccessor;
+      private readonly ICorrelationIdAccessor _correlationIdAccessor;
+      private readonly IInboundRequestIdAccessor _inboundRequestIdAccessor;
+      private readonly IOutboundRequestIdAccessor _outboundRequestIdAccessor;
       private readonly IApplicationInfo _applicationInfo;
 
       public IdentifyingHttpClientEventCallback(
-         IGetRequestId requestIdGetter,
-         IGetCorrelationId correlationIdGetter,
+         ISessionIdAccessor sessionIdGetter,
+         ICorrelationIdAccessor correlationIdGetter,
+         IInboundRequestIdAccessor inboundRequestIdGetter,
+         IOutboundRequestIdAccessor outboundRequestIdGetter,
          IApplicationInfo applicationInfo)
       {
-         _requestIdGetter = requestIdGetter ?? throw new ArgumentNullException(nameof(requestIdGetter));
-         _correlationIdGetter = correlationIdGetter ?? throw new ArgumentNullException(nameof(correlationIdGetter));
+         _sessionIdAccessor = sessionIdGetter ?? throw new ArgumentNullException(nameof(sessionIdGetter));
+         _correlationIdAccessor = correlationIdGetter ?? throw new ArgumentNullException(nameof(correlationIdGetter));
+         _inboundRequestIdAccessor = inboundRequestIdGetter ?? throw new ArgumentNullException(nameof(inboundRequestIdGetter));
+         _outboundRequestIdAccessor = outboundRequestIdGetter ?? throw new ArgumentNullException(nameof(outboundRequestIdGetter));
          _applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
       }
 
       public void Invoke(IHttpClientEvent @event)
       {
-         AddTag(@event, "upstream-request-id", _requestIdGetter.Get);
-         AddTag(@event, "correlation-id", _correlationIdGetter.Get);
-         AddTag(@event, "request-id", () => GetRequestIdFromHeader(@event.Request));         
+         AddTag(@event, "outboundRequestId", () => _outboundRequestIdAccessor.OutboundRequestId);
+         AddTag(@event, "inboundRequestId", () => _inboundRequestIdAccessor.InboundRequestId);
+         AddTag(@event, "correlationId", () => _correlationIdAccessor.CorrelationId);
+         AddTag(@event, "sessionId", () => _sessionIdAccessor.SessionId);
          AddTag(@event, "service", () => _applicationInfo.Name);
          AddTag(@event, "version", () => _applicationInfo.Version);
       }
@@ -44,20 +52,8 @@ namespace Grouchy.HttpApi.Server.EventCallbacks
          }
          catch
          {
-            // Ignore any exceptions
+            // Ignore any exceptions thrown by the getters
          }
-      }
-
-      private static string GetRequestIdFromHeader(HttpRequestMessage request)
-      {
-         if (request == null) return null;
-
-         if (request.Headers.TryGetValues("request-id", out var values))
-         {
-            return values.First();
-         }
-
-         return null;
       }
    }
 }

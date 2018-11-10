@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Grouchy.HttpApi.Server.Abstractions;
+using Grouchy.HttpApi.Server.Abstractions.Events;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace Grouchy.HttpApi.Server.Events
 {
-   public class HttpServerResponse : IHttpServerEvent
+   public class HttpServerResponse : IHttpServerResponseEvent
    {
       public string EventType => nameof(HttpServerResponse);
 
@@ -14,12 +13,9 @@ namespace Grouchy.HttpApi.Server.Events
 
       public string Uri { get; set; }
 
-      public string Method => Request.Method;
+      public string Method { get; set; }
 
       public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
-
-      [JsonIgnore]
-      public HttpRequest Request { get; set; }
 
       public int StatusCode { get; set; }
 
@@ -31,7 +27,7 @@ namespace Grouchy.HttpApi.Server.Events
          {
             Timestamp = DateTimeOffset.UtcNow,
             Uri = context.Request.Path + context.Request.QueryString,
-            Request = context.Request,
+            Method = context.Request.Method,
             StatusCode = context.Response.StatusCode,
             DurationMs = durationMs
          };

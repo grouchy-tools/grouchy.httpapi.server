@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Grouchy.HttpApi.Client.Abstractions;
+using Grouchy.HttpApi.Client.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Client.Abstractions.Events;
+using Grouchy.HttpApi.Client.Abstractions.HttpClients;
 
 namespace Grouchy.HttpApi.Server.Tests
 {
@@ -20,8 +22,6 @@ namespace Grouchy.HttpApi.Server.Tests
          _callbacks = callbacks;
       }
 
-      public Uri BaseAddress => _httpClient.BaseAddress;
-
       public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
       {
          var @event = new Event { Request = request };
@@ -36,8 +36,9 @@ namespace Grouchy.HttpApi.Server.Tests
       {
          public string EventType { get; set; }
          public DateTimeOffset Timestamp { get; set; }
-         public string Uri { get; set; }
          public string Method { get; set; }
+         public string TargetService { get; set; }
+         public string Uri { get; set; }
          public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
          public HttpRequestMessage Request { get; set; }
       }

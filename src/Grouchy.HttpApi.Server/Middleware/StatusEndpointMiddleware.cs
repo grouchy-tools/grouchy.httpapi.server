@@ -4,8 +4,9 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Grouchy.HttpApi.Server.Abstractions;
-using Grouchy.HttpApi.Server.Model;
 using Grouchy.Abstractions;
+using Grouchy.HttpApi.Server.Abstractions.Model;
+using Grouchy.HttpApi.Server.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -17,16 +18,13 @@ namespace Grouchy.HttpApi.Server.Middleware
    {      
       private readonly RequestDelegate _next;
       private readonly IApplicationInfo _applicationInfo;
-      private readonly IStatusAvailabilityService _statusAvailabilityService;
 
       public StatusEndpointMiddleware(
          RequestDelegate next,
-         IApplicationInfo applicationInfo,
-         IStatusAvailabilityService statusAvailabilityService)
+         IApplicationInfo applicationInfo)
       {
          _next = next ?? throw new ArgumentNullException(nameof(next));
          _applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
-         _statusAvailabilityService = statusAvailabilityService ?? throw new ArgumentNullException(nameof(statusAvailabilityService));
       }
 
       public async Task Invoke(HttpContext context)
@@ -59,10 +57,10 @@ namespace Grouchy.HttpApi.Server.Middleware
                   // Ignore cancellations
                }
 
-//               var dependencies = statusDependencies.Select(c => c.StatusTask.Result).ToArray();
                var dependencies = statusDependencies.Select(c => c.StatusTask.Status == TaskStatus.RanToCompletion ? c.StatusTask.Result : new Dependency { Name = c.Name, Availability = Availability.Unknown }).ToArray();
 
-               response.Availability = _statusAvailabilityService.GetAvailability(dependencies);
+               var statusAvailabilityService = new StatusAvailabilityService();
+               response.Availability = statusAvailabilityService.GetAvailability(dependencies);
                response.Dependencies = dependencies;
             }
             else

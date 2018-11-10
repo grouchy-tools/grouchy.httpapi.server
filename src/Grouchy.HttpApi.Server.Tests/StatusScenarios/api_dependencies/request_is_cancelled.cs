@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Grouchy.HttpApi.Server.Abstractions.Model;
 using NUnit.Framework;
-using Grouchy.HttpApi.Server.Model;
 using Grouchy.HttpApi.Server.Services;
 
 namespace Grouchy.HttpApi.Server.Tests.StatusScenarios.api_dependencies

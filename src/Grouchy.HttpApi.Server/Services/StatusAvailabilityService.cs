@@ -1,10 +1,9 @@
 ﻿using System.Linq;
-using Grouchy.HttpApi.Server.Abstractions;
-using Grouchy.HttpApi.Server.Model;
+using Grouchy.HttpApi.Server.Abstractions.Model;
 
 namespace Grouchy.HttpApi.Server.Services
 {
-   public class StatusAvailabilityService : IStatusAvailabilityService
+   public class StatusAvailabilityService
    {
       public Availability GetAvailability(params Dependency[] dependencies)
       {

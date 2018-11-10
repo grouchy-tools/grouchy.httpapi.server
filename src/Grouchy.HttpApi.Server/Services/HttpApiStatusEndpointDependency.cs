@@ -2,11 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Grouchy.HttpApi.Server.Abstractions;
-using Grouchy.HttpApi.Server.Model;
-using Grouchy.HttpApi.Client.Abstractions;
 using Grouchy.HttpApi.Client.Abstractions.Configuration;
 using Grouchy.HttpApi.Client.Abstractions.Exceptions;
 using Grouchy.HttpApi.Client.Abstractions.Extensions;
+using Grouchy.HttpApi.Client.Abstractions.HttpClients;
+using Grouchy.HttpApi.Server.Abstractions.Model;
 
 namespace Grouchy.HttpApi.Server.Services
 {

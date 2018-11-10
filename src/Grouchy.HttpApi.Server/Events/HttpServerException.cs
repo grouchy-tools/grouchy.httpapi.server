@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Grouchy.HttpApi.Server.Abstractions;
+using Grouchy.HttpApi.Server.Abstractions.Events;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace Grouchy.HttpApi.Server.Events
 {
-   public class HttpServerException : IHttpServerEvent
+   public class HttpServerException : IHttpServerExceptionEvent
    {
       public string EventType => nameof(HttpServerException);
 
@@ -14,22 +13,22 @@ namespace Grouchy.HttpApi.Server.Events
 
       public string Uri { get; set; }
 
-      public string Method => Request.Method;
+      public string Method { get; set; }
 
       public IDictionary<string, object> Tags { get; } = new Dictionary<string, object>();
 
-      [JsonIgnore]
-      public HttpRequest Request { get; set; }
+      public long DurationMs { get; set; }
 
       public Exception Exception { get; set; }
 
-      public static HttpServerException Create(HttpContext context, Exception exception)
+      public static HttpServerException Create(HttpContext context, long durationMs, Exception exception)
       {
          return new HttpServerException
          {
             Timestamp = DateTimeOffset.UtcNow,
             Uri = context.Request.Path + context.Request.QueryString,
-            Request = context.Request,
+            Method = context.Request.Method,
+            DurationMs = durationMs,
             Exception = exception
          };
       }

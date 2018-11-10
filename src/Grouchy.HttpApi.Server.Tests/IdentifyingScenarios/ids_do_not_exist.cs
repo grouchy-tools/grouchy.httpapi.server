@@ -26,6 +26,7 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
       {
          _ids["requestId"].Value<string>().ShouldBe(RequestId.ToString());
          _ids["correlationId"].Value<string>().ShouldBe(CorrelationId.ToString());
+         _ids["sessionId"].Value<string>().ShouldBe("(Not available)");
       }
 
       [Test]
@@ -42,8 +43,9 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/get-ids-from-context");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId.ToString());
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("requestId", RequestId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("correlationId", CorrelationId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("sessionId", "(Not available)");
       }
    }
 }

@@ -2,11 +2,13 @@
 using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Grouchy.HttpApi.Server.Abstractions;
 using Grouchy.HttpApi.Server.EventCallbacks;
 using Grouchy.HttpApi.Server.Exceptions;
 using Grouchy.HttpApi.Server.Extensions;
 using Grouchy.Abstractions;
+using Grouchy.Abstractions.Tagging;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Server.Abstractions.Tagging;
 using Grouchy.HttpApi.Server.Testing;
 using Grouchy.Resilience.Abstractions.CircuitBreaking;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,14 +21,18 @@ namespace Grouchy.HttpApi.Server.Tests.ServerLoggingScenarios
       public string RequestId { get; private set; }
 
       public string CorrelationId { get; private set; }
+      
+      public string SessionId { get; private set; }
 
       public string Service { get; private set; }
       
       public string Version { get; private set; }
 
-      public StubRequestIdGetter StubRequestIdGetter { get; private set; }
+      public StubInboundRequestIdAccessor StubInboundRequestIdAccessor { get; private set; }
 
-      public StubCorrelationIdGetter StubCorrelationIdGetter { get; private set; }
+      public StubCorrelationIdAccessor StubCorrelationIdAccessor { get; private set; }
+      
+      public StubSessionIdAccessor StubSessionIdAccessor { get; private set; }
 
       public StubApplicationInfo StubApplicationInfo { get; private set; }
 
@@ -39,21 +45,24 @@ namespace Grouchy.HttpApi.Server.Tests.ServerLoggingScenarios
       {
          RequestId = Guid.NewGuid().ToString();
          CorrelationId = Guid.NewGuid().ToString();
+         SessionId = Guid.NewGuid().ToString();
          Service = "theService";
          Version = "1.2.3-server";
-         StubRequestIdGetter = new StubRequestIdGetter { RequestId = RequestId };
-         StubCorrelationIdGetter = new StubCorrelationIdGetter { CorrelationId = CorrelationId };
+         StubInboundRequestIdAccessor = new StubInboundRequestIdAccessor { Response = RequestId };
+         StubCorrelationIdAccessor = new StubCorrelationIdAccessor { Response = CorrelationId };
+         StubSessionIdAccessor = new StubSessionIdAccessor { Response = SessionId };
          StubApplicationInfo = new StubApplicationInfo { Name = Service, Version = Version};
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubRequestIdGetter, StubCorrelationIdGetter, StubApplicationInfo);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(StubSessionIdAccessor, StubCorrelationIdAccessor, StubInboundRequestIdAccessor, StubApplicationInfo);
          TestHost = new LightweightHttpApiHost(services =>
          {
             services.AddDefaultServices();
 
             services.AddSingleton<ICircuitBreakerManager, StubCircuitBreakerManager>();
             services.AddSingleton<IApplicationInfo>(StubApplicationInfo);
-            services.AddSingleton<IGetRequestId>(StubRequestIdGetter);
-            services.AddSingleton<IGetCorrelationId>(StubCorrelationIdGetter);
+            services.AddSingleton<IInboundRequestIdAccessor>(StubInboundRequestIdAccessor);
+            services.AddSingleton<ICorrelationIdAccessor>(StubCorrelationIdAccessor);
+            services.AddSingleton<ISessionIdAccessor>(StubSessionIdAccessor);
             services.AddSingleton<IHttpServerEventCallback>(identifyingCallback);
             services.AddSingleton<IHttpServerEventCallback>(StubHttpServerEventCallback);
          }, Configure);

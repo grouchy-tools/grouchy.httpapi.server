@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Grouchy.HttpApi.Client.Abstractions;
+using Grouchy.HttpApi.Client.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Client.Abstractions.Events;
 
 namespace Grouchy.HttpApi.Server.Tests
 {

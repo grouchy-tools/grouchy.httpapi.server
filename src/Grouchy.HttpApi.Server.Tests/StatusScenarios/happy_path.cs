@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Grouchy.HttpApi.Server.Model;
+using Grouchy.HttpApi.Server.Abstractions.Model;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Shouldly;

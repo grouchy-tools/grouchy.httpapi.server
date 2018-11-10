@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using Grouchy.HttpApi.Server.EventCallbacks;
-using Grouchy.HttpApi.Client.Abstractions;
-using Newtonsoft.Json;
+using Grouchy.HttpApi.Client.Abstractions.EventCallbacks;
 using NUnit.Framework;
 using Shouldly;
 
@@ -54,7 +53,7 @@ namespace Grouchy.HttpApi.Server.Tests.EventCallbackScenarios
 
          _testSubject.Invoke(clientRequest);
 
-         _logger.Logs[0].ShouldBe("{\"eventType\":\"Simple\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"http://localhost:8080/ping\",\"method\":\"GET\"}");
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"Simple\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"method\":\"GET\",\"uri\":\"http://localhost:8080/ping\"}");
       }
 
       [Test]
@@ -75,7 +74,7 @@ namespace Grouchy.HttpApi.Server.Tests.EventCallbackScenarios
 
          _testSubject.Invoke(clientRequest);
 
-         _logger.Logs[0].ShouldBe("{\"eventType\":\"SimpleWithTag\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"http://localhost:8080/ping\",\"method\":\"GET\",\"tags\":{\"key\":\"value\"}}");
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"SimpleWithTag\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"method\":\"GET\",\"uri\":\"http://localhost:8080/ping\",\"tags\":{\"key\":\"value\"}}");
       }
 
       [Test]
@@ -93,7 +92,7 @@ namespace Grouchy.HttpApi.Server.Tests.EventCallbackScenarios
 
          _testSubject.Invoke(clientRequest);
 
-         _logger.Logs[0].ShouldBe("{\"eventType\":\"SimpleWithField\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"http://localhost:8080/ping\",\"method\":\"POST\",\"somethingElse\":\"another\"}");
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"SimpleWithField\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"method\":\"POST\",\"uri\":\"http://localhost:8080/ping\",\"somethingElse\":\"another\"}");
       }
 
       [Test]
@@ -133,24 +132,6 @@ namespace Grouchy.HttpApi.Server.Tests.EventCallbackScenarios
          public override string StackTrace { get; } = "the-stack-trace";
       }
 
-      private class StubHttpClientEvent : IHttpClientEvent
-      {
-         public string EventType { get; set; }
-         
-         public DateTimeOffset Timestamp { get; set; }
-                  
-         public string Uri { get; set; }
-         
-         public string Method { get; set; }
-         
-         [JsonIgnore]
-         public HttpRequestMessage Request { get; set; }
-         
-         public string SomethingElse { get; set; }
-         
-         public IDictionary<string, object> Tags { get; set; }
-         
-         public Exception Exception { get; set; }
-      }
+
    }
 }

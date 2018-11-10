@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Grouchy.HttpApi.Client.Abstractions;
+using Grouchy.HttpApi.Client.Abstractions.HttpClients;
 using Newtonsoft.Json;
 
 namespace Grouchy.HttpApi.Server.Tests

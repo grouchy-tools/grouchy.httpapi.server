@@ -18,7 +18,8 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
          var headers = new Dictionary<string, string>
          {
             { "request-id", RequestId.ToString() },
-            { "correlation-id", CorrelationId.ToString() }
+            { "correlation-id", CorrelationId.ToString() },
+            { "session-id", SessionId.ToString() }
          };
 
          var response = await TestHost.GetAsync("/get-ids-from-context", headers);
@@ -31,6 +32,7 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
       {
          _idsFromContext["requestId"].Value<string>().ShouldBe(RequestId.ToString());
          _idsFromContext["correlationId"].Value<string>().ShouldBe(CorrelationId.ToString());
+         _idsFromContext["sessionId"].Value<string>().ShouldBe(SessionId.ToString());
       }
 
       [Test]
@@ -47,8 +49,9 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/get-ids-from-context");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId.ToString());
-         @event.Tags.ShouldContainKeyAndValue("correlation-id", CorrelationId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("requestId", RequestId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("correlationId", CorrelationId.ToString());
+         @event.Tags.ShouldContainKeyAndValue("sessionId", SessionId.ToString());
       }
    }
 }

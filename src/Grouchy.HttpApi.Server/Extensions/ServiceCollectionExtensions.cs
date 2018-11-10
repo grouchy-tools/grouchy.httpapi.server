@@ -6,8 +6,15 @@ using Grouchy.HttpApi.Server.CircuitBreaking;
 using Grouchy.HttpApi.Server.EventCallbacks;
 using Grouchy.HttpApi.Server.Services;
 using Grouchy.Abstractions;
+using Grouchy.Abstractions.Tagging;
 using Grouchy.HttpApi.Client.Abstractions;
 using Grouchy.HttpApi.Client.Abstractions.Configuration;
+using Grouchy.HttpApi.Client.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Client.Abstractions.HttpClients;
+using Grouchy.HttpApi.Client.Abstractions.Tagging;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Server.Abstractions.Tagging;
+using Grouchy.HttpApi.Server.Tagging;
 using Grouchy.Resilience.Abstractions.CircuitBreaking;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -22,16 +29,18 @@ namespace Grouchy.HttpApi.Server.Extensions
       {
          if (services == null) throw new ArgumentNullException(nameof(services));
 
-         services.Add(ServiceDescriptor.Scoped<IGetRequestId, RequestIdGetter>());
-         services.Add(ServiceDescriptor.Scoped<IGetCorrelationId, CorrelationIdGetter>());
-         services.Add(ServiceDescriptor.Scoped<HttpContext>(sp => sp.GetService<IHttpContextAccessor>().HttpContext));
+         services.AddSingleton<IOutboundRequestIdAccessor, OutboundRequestIdAccessor>();
+         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+         services.AddScoped<IInboundRequestIdAccessor, InboundRequestIdGetter>();
+         services.AddScoped<ICorrelationIdAccessor, CorrelationIdAccessor>();
+         services.AddScoped<ISessionIdAccessor, SessionIdAccessor>();
+         services.AddScoped<HttpContext>(sp => sp.GetService<IHttpContextAccessor>().HttpContext);
          
          services.AddHostedService<CircuitBreakerHostedService>();
 
-         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
          services.AddTransient<IGenerateGuids, GuidGenerator>();
          services.AddTransient<IApplicationInfo, ApplicationInfo>();
-         services.AddTransient<IStatusAvailabilityService, StatusAvailabilityService>();
 
          services.AddTransient<IHttpServerEventCallback, IdentifyingHttpServerEventCallback>();
          services.AddTransient<IHttpServerEventCallback, JsonLoggingHttpServerEventCallback>();

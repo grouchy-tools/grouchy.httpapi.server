@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
-using Grouchy.HttpApi.Server.Abstractions;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
 using Grouchy.HttpApi.Server.Events;
 using Grouchy.HttpApi.Server.Exceptions;
 using Grouchy.HttpApi.Server.Extensions;
@@ -40,10 +40,9 @@ namespace Grouchy.HttpApi.Server.Middleware
          {
             await WriteResponse(context, HttpStatusCode.InternalServerError, "FAIL!");
 
-            callbacks.Invoke(() => HttpServerException.Create(context, e));
+            callbacks.Invoke(() => HttpServerException.Create(context, stopwatch.ElapsedMilliseconds, e));
          }
 
-         stopwatch.Stop();
          callbacks.Invoke(() => HttpServerResponse.Create(context, stopwatch.ElapsedMilliseconds));
       }
 

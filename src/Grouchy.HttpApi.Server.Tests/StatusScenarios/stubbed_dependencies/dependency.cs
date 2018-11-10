@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Grouchy.HttpApi.Server.Abstractions;
-using Grouchy.HttpApi.Server.Model;
+using Grouchy.HttpApi.Server.Abstractions.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NUnit.Framework;

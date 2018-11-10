@@ -35,6 +35,8 @@ namespace Grouchy.HttpApi.Server.Tests
          throw new NotImplementedException();
       }
 
-      public double ClosedPct { get; }
+      public string Policy { get; set; }
+
+      public double ClosedPct { get; set; }
    }
 }

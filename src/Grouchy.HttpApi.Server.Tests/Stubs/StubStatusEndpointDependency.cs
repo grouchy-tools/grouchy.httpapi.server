@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Grouchy.HttpApi.Server.Abstractions;
-using Grouchy.HttpApi.Server.Model;
+using Grouchy.HttpApi.Server.Abstractions.Model;
 
 namespace Grouchy.HttpApi.Server.Tests
 {

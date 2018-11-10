@@ -1,5 +1,5 @@
-﻿using Grouchy.HttpApi.Server.Services;
-using Grouchy.HttpApi.Server.Model;
+﻿using Grouchy.HttpApi.Server.Abstractions.Model;
+using Grouchy.HttpApi.Server.Services;
 using NUnit.Framework;
 
 namespace Grouchy.HttpApi.Server.Tests.StatusScenarios

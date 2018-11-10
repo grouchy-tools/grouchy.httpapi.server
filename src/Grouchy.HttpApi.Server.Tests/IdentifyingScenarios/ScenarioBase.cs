@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Grouchy.HttpApi.Server.Abstractions;
 using Grouchy.HttpApi.Server.EventCallbacks;
 using Grouchy.HttpApi.Server.Extensions;
 using Grouchy.Abstractions;
+using Grouchy.Abstractions.Tagging;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Server.Abstractions.Tagging;
 using Grouchy.HttpApi.Server.Testing;
 using Grouchy.Resilience.Abstractions.CircuitBreaking;
 using Newtonsoft.Json;
@@ -20,6 +22,8 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
       protected Guid RequestId { get; private set; }
 
       protected Guid CorrelationId { get; private set; }
+      
+      protected Guid SessionId { get; private set; }
 
       protected StubHttpServerEventCallback StubHttpServerEventCallback { get; private set; }
 
@@ -31,6 +35,7 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
          StubGuidGenerator = new StubGuidGenerator();
          RequestId = Guid.NewGuid();
          CorrelationId = Guid.NewGuid();
+         SessionId = Guid.NewGuid();
          StubHttpServerEventCallback = new StubHttpServerEventCallback();
          TestHost = new LightweightHttpApiHost(services =>
          {
@@ -45,11 +50,12 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
 
       private static IdentifyingHttpServerEventCallback CreateIdentifyingCallback(IServiceProvider serviceProvider)
       {
-         var requestIdGetter = serviceProvider.GetService<IGetRequestId>();
-         var correlationIdGetter = serviceProvider.GetService<IGetCorrelationId>();
+         var inboundRequestIdAccessor = serviceProvider.GetService<IInboundRequestIdAccessor>();
+         var correlationIdAccessor = serviceProvider.GetService<ICorrelationIdAccessor>();
+         var sessionIdAccessor = serviceProvider.GetService<ISessionIdAccessor>();
          var applicationInfo = serviceProvider.GetService<IApplicationInfo>();
 
-         var identifyingCallback = new IdentifyingHttpServerEventCallback(requestIdGetter, correlationIdGetter, applicationInfo);
+         var identifyingCallback = new IdentifyingHttpServerEventCallback(sessionIdAccessor, correlationIdAccessor, inboundRequestIdAccessor, applicationInfo);
 
          return identifyingCallback;
       }
@@ -60,10 +66,11 @@ namespace Grouchy.HttpApi.Server.Tests.IdentifyingScenarios
 
          app.Map("/get-ids-from-context", "GET", async context =>
          {
-            var requestIdGetter = context.RequestServices.GetService<IGetRequestId>();
-            var correlationIdGetter = context.RequestServices.GetService<IGetCorrelationId>();
+            var inboundRequestIdAccessor = context.RequestServices.GetService<IInboundRequestIdAccessor>();
+            var correlationIdAccessor = context.RequestServices.GetService<ICorrelationIdAccessor>();
+            var sessionIdAccessor = context.RequestServices.GetService<ISessionIdAccessor>();
 
-            var response = new { requestId = requestIdGetter.Get(), correlationId = correlationIdGetter.Get() };
+            var response = new { requestId = inboundRequestIdAccessor.InboundRequestId, correlationId = correlationIdAccessor.CorrelationId, sessionId = sessionIdAccessor.SessionId };
             var json = JsonConvert.SerializeObject(response);
 
             context.Response.StatusCode = 200;

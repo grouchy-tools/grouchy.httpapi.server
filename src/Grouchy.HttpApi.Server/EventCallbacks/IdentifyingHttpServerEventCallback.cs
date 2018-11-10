@@ -1,29 +1,36 @@
 ﻿using System;
-using Grouchy.HttpApi.Server.Abstractions;
 using Grouchy.Abstractions;
+using Grouchy.Abstractions.Tagging;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
+using Grouchy.HttpApi.Server.Abstractions.Events;
+using Grouchy.HttpApi.Server.Abstractions.Tagging;
 
 namespace Grouchy.HttpApi.Server.EventCallbacks
 {
    public class IdentifyingHttpServerEventCallback : IHttpServerEventCallback
    {
-      private readonly IGetRequestId _requestIdGetter;
-      private readonly IGetCorrelationId _correlationIdGetter;
+      private readonly ISessionIdAccessor _sessionIdAccessor;
+      private readonly ICorrelationIdAccessor _correlationIdAccessor;
+      private readonly IInboundRequestIdAccessor _inboundRequestIdAccessor;
       private readonly IApplicationInfo _applicationInfo;
 
       public IdentifyingHttpServerEventCallback(
-         IGetRequestId requestIdGetter,
-         IGetCorrelationId correlationIdGetter,
+         ISessionIdAccessor sessionIdAccessor,
+         ICorrelationIdAccessor correlationIdAccessor,
+         IInboundRequestIdAccessor inboundRequestIdAccessor,
          IApplicationInfo applicationInfo)
       {
-         _requestIdGetter = requestIdGetter ?? throw new ArgumentNullException(nameof(requestIdGetter));
-         _correlationIdGetter = correlationIdGetter ?? throw new ArgumentNullException(nameof(correlationIdGetter));
+         _sessionIdAccessor = sessionIdAccessor ?? throw new ArgumentNullException(nameof(sessionIdAccessor));
+         _correlationIdAccessor = correlationIdAccessor ?? throw new ArgumentNullException(nameof(correlationIdAccessor));
+         _inboundRequestIdAccessor = inboundRequestIdAccessor ?? throw new ArgumentNullException(nameof(inboundRequestIdAccessor));
          _applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
       }
 
       public void Invoke(IHttpServerEvent @event)
       {
-         AddTag(@event, "request-id", _requestIdGetter.Get);
-         AddTag(@event, "correlation-id", _correlationIdGetter.Get);
+         AddTag(@event, "requestId", () => _inboundRequestIdAccessor.InboundRequestId);
+         AddTag(@event, "correlationId", () => _correlationIdAccessor.CorrelationId);
+         AddTag(@event, "sessionId", () => _sessionIdAccessor.SessionId);
          AddTag(@event, "service", () => _applicationInfo.Name);
          AddTag(@event, "version", () => _applicationInfo.Version);
       }
@@ -40,7 +47,7 @@ namespace Grouchy.HttpApi.Server.EventCallbacks
          }
          catch
          {
-            // Ignore any exceptions
+            // Ignore any exceptions thrown by the getters
          }
       }
    }

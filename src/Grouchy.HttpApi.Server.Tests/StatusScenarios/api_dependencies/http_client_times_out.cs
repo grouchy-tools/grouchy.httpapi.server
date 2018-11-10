@@ -3,9 +3,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Grouchy.HttpApi.Server.Model;
 using Grouchy.HttpApi.Server.Services;
 using Grouchy.HttpApi.Client.Abstractions.Exceptions;
+using Grouchy.HttpApi.Server.Abstractions.Model;
 
 namespace Grouchy.HttpApi.Server.Tests.StatusScenarios.api_dependencies
 {

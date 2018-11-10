@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Grouchy.HttpApi.Server.Abstractions;
+using Grouchy.HttpApi.Server.Abstractions.EventCallbacks;
 using Grouchy.HttpApi.Server.EventCallbacks;
 using Grouchy.HttpApi.Server.Events;
 using Microsoft.AspNetCore.Http;
@@ -88,36 +88,36 @@ namespace Grouchy.HttpApi.Server.Tests.EventCallbackScenarios
       [Test]
       public void serialise_server_exception()
       {
-         var httpServerResponse = HttpServerException.Create(_httpContext, new ExceptionWithStackTrace("my-exception") { });
+         var httpServerResponse = HttpServerException.Create(_httpContext, 123, new ExceptionWithStackTrace("my-exception") { });
          httpServerResponse.Timestamp = new DateTimeOffset(2016, 11, 18, 19, 52, 6, TimeSpan.Zero).AddTicks(4425454);
 
          _testSubject.Invoke(httpServerResponse);
 
-         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"exception\":{\"type\":\"ExceptionWithStackTrace\",\"message\":\"my-exception\",\"stackTrace\":\"the-stack-trace\"}}");
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"durationMs\":123,\"exception\":{\"type\":\"ExceptionWithStackTrace\",\"message\":\"my-exception\",\"stackTrace\":\"the-stack-trace\"}}");
       }
 
       [Test]
       public void serialise_server_exception_with_inner_exception()
       {
-         var httpServerResponse = HttpServerException.Create(_httpContext, new Exception("my-exception", new ApplicationException("inner")));
+         var httpServerResponse = HttpServerException.Create(_httpContext, 123, new Exception("my-exception", new ApplicationException("inner")));
          httpServerResponse.Timestamp = new DateTimeOffset(2016, 11, 18, 19, 52, 6, TimeSpan.Zero).AddTicks(4425454);
 
          _testSubject.Invoke(httpServerResponse);
 
-         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"exception\":{\"type\":\"Exception\",\"message\":\"my-exception\",\"innerException\":{\"type\":\"ApplicationException\",\"message\":\"inner\"}}}");
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"durationMs\":123,\"exception\":{\"type\":\"Exception\",\"message\":\"my-exception\",\"innerException\":{\"type\":\"ApplicationException\",\"message\":\"inner\"}}}");
       }
 
       [Test]
       public void serialise_server_exception_with_tag()
       {
-         var httpServerResponse = HttpServerException.Create(_httpContext, new Exception("my-exception"));
+         var httpServerResponse = HttpServerException.Create(_httpContext, 1729, new Exception("my-exception"));
          httpServerResponse.Timestamp = new DateTimeOffset(2016, 11, 18, 19, 52, 6, TimeSpan.Zero).AddTicks(4425454);
          httpServerResponse.Tags.Add("key1", "value1");
          httpServerResponse.Tags.Add("key2", "value2");
 
          _testSubject.Invoke(httpServerResponse);
 
-         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"tags\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"exception\":{\"type\":\"Exception\",\"message\":\"my-exception\"}}");
+         _logger.Logs[0].ShouldBe("{\"eventType\":\"HttpServerException\",\"timestamp\":\"2016-11-18T19:52:06.4425454+00:00\",\"uri\":\"/ping?v=1\",\"method\":\"GET\",\"tags\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"durationMs\":1729,\"exception\":{\"type\":\"Exception\",\"message\":\"my-exception\"}}");
       }
 
       private class ExceptionWithStackTrace : Exception

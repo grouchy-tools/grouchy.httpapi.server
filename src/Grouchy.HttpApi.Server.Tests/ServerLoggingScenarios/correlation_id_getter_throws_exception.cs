@@ -15,7 +15,7 @@ namespace Grouchy.HttpApi.Server.Tests.ServerLoggingScenarios
       [OneTimeSetUp]
       public async Task setup_scenario()
       {         
-         StubCorrelationIdGetter.Exception = new Exception("Problem with CorrelationIdGetter");
+         StubCorrelationIdAccessor.Exception = new Exception("Problem with CorrelationIdGetter");
 
          _response = await TestHost.GetAsync("/happy-path");
       }
@@ -54,8 +54,9 @@ namespace Grouchy.HttpApi.Server.Tests.ServerLoggingScenarios
          @event.EventType.ShouldBe("HttpServerRequest");
          @event.Uri.ShouldBe("/happy-path");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
-         @event.Tags.ShouldNotContainKey("correlation-id");
+         @event.Tags.ShouldNotContainKey("correlationId");
+         @event.Tags.ShouldContainKeyAndValue("requestId", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("sessionId", SessionId);
       }
 
       [Test]
@@ -72,8 +73,9 @@ namespace Grouchy.HttpApi.Server.Tests.ServerLoggingScenarios
          @event.EventType.ShouldBe("HttpServerResponse");
          @event.Uri.ShouldBe("/happy-path");
          @event.Method.ShouldBe("GET");
-         @event.Tags.ShouldContainKeyAndValue("request-id", RequestId);
-         @event.Tags.ShouldNotContainKey("correlation-id");
+         @event.Tags.ShouldNotContainKey("correlationId");
+         @event.Tags.ShouldContainKeyAndValue("requestId", RequestId);
+         @event.Tags.ShouldContainKeyAndValue("sessionId", SessionId);
          @event.DurationMs.ShouldBeInRange(0, int.MaxValue);
          @event.StatusCode.ShouldBe(200);
       }
