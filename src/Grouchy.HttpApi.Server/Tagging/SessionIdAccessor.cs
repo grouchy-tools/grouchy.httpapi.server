@@ -6,19 +6,19 @@ using Microsoft.Extensions.Primitives;
 namespace Grouchy.HttpApi.Server.Tagging
 {
    /// <remarks>
-   /// Designed to be registered "AsScoped" due to the use of HttpContext
+   /// Designed to be registered "AsScoped" due to the caching of _sessionId
    /// </remarks>>
    public class SessionIdAccessor : ISessionIdAccessor
    {
       private const string SessionIdKey = "session-id";
 
-      private readonly HttpContext _httpContext;
+      private readonly IHttpContextAccessor _httpContextAccessor;
 
       private string _sessionId;
 
-      public SessionIdAccessor(HttpContext httpContext)
+      public SessionIdAccessor(IHttpContextAccessor httpContextAccessor)
       {
-         _httpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
+         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
       }
 
       public string SessionId
@@ -31,9 +31,10 @@ namespace Grouchy.HttpApi.Server.Tagging
                return _sessionId;
             }
 
+            var httpContext = _httpContextAccessor.HttpContext;
+
             // Otherwise check the headers...
-            StringValues idFromHeaders;
-            if (_httpContext.Request.Headers.TryGetValue(SessionIdKey, out idFromHeaders))
+            if (httpContext != null && httpContext.Request.Headers.TryGetValue(SessionIdKey, out var idFromHeaders))
             {
                _sessionId = idFromHeaders[0];
             }

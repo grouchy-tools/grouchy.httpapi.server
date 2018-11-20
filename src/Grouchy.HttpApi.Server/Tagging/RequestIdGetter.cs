@@ -6,22 +6,22 @@ using Microsoft.AspNetCore.Http;
 namespace Grouchy.HttpApi.Server.Tagging
 {
    /// <remarks>
-   /// Designed to be registered "AsScoped" due to the use of HttpContext
+   /// Designed to be registered "AsScoped" due to the caching of _requestId
    /// </remarks>>
    public class InboundRequestIdGetter : IInboundRequestIdAccessor
    {
       private const string RequestIdKey = "request-id";
 
-      private readonly HttpContext _httpContext;
+      private readonly IHttpContextAccessor _httpContextAccessor;
       private readonly IGenerateGuids _guidGenerator;
 
       private string _requestId;
 
       public InboundRequestIdGetter(
-         HttpContext httpContext,
+         IHttpContextAccessor httpContextAccessor,
          IGenerateGuids guidGenerator)
       {
-         _httpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
+         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
          _guidGenerator = guidGenerator ?? throw new ArgumentNullException(nameof(guidGenerator));
       }
 
@@ -35,8 +35,10 @@ namespace Grouchy.HttpApi.Server.Tagging
                return _requestId;
             }
 
+            var httpContext = _httpContextAccessor.HttpContext;
+
             // Otherwise check the headers...
-            if (_httpContext.Request.Headers.TryGetValue(RequestIdKey, out var idFromHeaders))
+            if (httpContext != null && httpContext.Request.Headers.TryGetValue(RequestIdKey, out var idFromHeaders))
             {
                _requestId = idFromHeaders[0];
             }

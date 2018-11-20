@@ -35,10 +35,7 @@ namespace Grouchy.HttpApi.Server.Extensions
          services.AddScoped<IInboundRequestIdAccessor, InboundRequestIdGetter>();
          services.AddScoped<ICorrelationIdAccessor, CorrelationIdAccessor>();
          services.AddScoped<ISessionIdAccessor, SessionIdAccessor>();
-         services.AddScoped<HttpContext>(sp => sp.GetService<IHttpContextAccessor>().HttpContext);
          
-         services.AddHostedService<CircuitBreakerHostedService>();
-
          services.AddTransient<IGenerateGuids, GuidGenerator>();
          services.AddTransient<IApplicationInfo, ApplicationInfo>();
 
@@ -53,6 +50,8 @@ namespace Grouchy.HttpApi.Server.Extensions
       public static IServiceCollection AddCircuitBreakerStateManager<TCircuitBreakerManager>(this IServiceCollection services, Action<TCircuitBreakerManager> configureManager)
          where TCircuitBreakerManager: ICircuitBreakerManager, new()
       {
+         services.AddHostedService<CircuitBreakerHostedService>();
+
          services.AddSingleton<ICircuitBreakerManager>(sp =>
          {
             var manager = new TCircuitBreakerManager();

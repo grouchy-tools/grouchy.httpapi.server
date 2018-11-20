@@ -7,22 +7,22 @@ using Microsoft.Extensions.Primitives;
 namespace Grouchy.HttpApi.Server.Tagging
 {
    /// <remarks>
-   /// Designed to be registered "AsScoped" due to the use of HttpContext
+   /// Designed to be registered "AsScoped" due to the caching of _correlationId
    /// </remarks>>
    public class CorrelationIdAccessor : ICorrelationIdAccessor
    {
       private const string CorrelationIdKey = "correlation-id";
 
-      private readonly HttpContext _httpContext;
+      private readonly IHttpContextAccessor _httpContextAccessor;
       private readonly IGenerateGuids _guidGenerator;
 
       private string _correlationId;
 
       public CorrelationIdAccessor(
-         HttpContext httpContext,
+         IHttpContextAccessor httpContextAccessor,
          IGenerateGuids guidGenerator)
       {
-         _httpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
+         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
          _guidGenerator = guidGenerator ?? throw new ArgumentNullException(nameof(guidGenerator));
       }
 
@@ -36,9 +36,10 @@ namespace Grouchy.HttpApi.Server.Tagging
                return _correlationId;
             }
 
+            var httpContext = _httpContextAccessor.HttpContext;
+
             // Otherwise check the headers...
-            StringValues idFromHeaders;
-            if (_httpContext.Request.Headers.TryGetValue(CorrelationIdKey, out idFromHeaders))
+            if (httpContext != null && httpContext.Request.Headers.TryGetValue(CorrelationIdKey, out var idFromHeaders))
             {
                _correlationId = idFromHeaders[0];
             }
