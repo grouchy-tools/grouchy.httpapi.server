@@ -75,14 +75,12 @@ namespace Grouchy.HttpApi.Server.Extensions
          return services;
       }
 
-      public static IServiceCollection AddHttpApi<TConfiguration, TContract, TService>(this IServiceCollection services, IConfiguration configuration)
+      public static IServiceCollection AddHttpApi<TConfiguration, TContract, TService>(this IServiceCollection services)
          where TConfiguration : class, IHttpApiConfiguration, new()
          where TContract : class
          where TService : class, TContract
       {
          if (services == null) throw new ArgumentNullException(nameof(services));
-
-         services.AddConfiguration<TConfiguration>(configuration);
 
          services.AddTransient<TContract>(sp =>
          {
@@ -93,13 +91,13 @@ namespace Grouchy.HttpApi.Server.Extensions
 
          services.AddTransient<IStatusEndpointDependency>(sp =>
          {
-            var circuitBreakerManager = sp.GetRequiredService<ICircuitBreakerManager>();
             var (httpClient, typedConfiguration) = BuildHttpClient<TConfiguration>(sp);
-            
             var httpApiStatusEndpointDependency = new HttpApiStatusEndpointDependency(httpClient, typedConfiguration);
 
             if (typedConfiguration is IHttpApiWithCircuitBreaking httpApiWithCircuitBreaking)
             {
+               var circuitBreakerManager = sp.GetRequiredService<ICircuitBreakerManager>();
+               
                return new CircuitBreakingStatusEndpointDependency<HttpStatusCode>(httpApiStatusEndpointDependency, circuitBreakerManager.GetState(httpApiWithCircuitBreaking.CircuitBreakerPolicy));
             }
             
