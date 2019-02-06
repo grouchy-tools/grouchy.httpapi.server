@@ -11,6 +11,8 @@ namespace Grouchy.HttpApi.Server.Extensions
          if (app == null) throw new ArgumentNullException(nameof(app));
 
          return app
+            .UseMiddleware<AddHttpStrictTransportSecurityMiddleware>()
+            .UseMiddleware<RemoveServerHeaderMiddleware>()
             .UseMiddleware<PingEndpointMiddleware>()
             .UseMiddleware<ServerLoggingMiddleware>()
             .UseMiddleware<StatusEndpointMiddleware>();
